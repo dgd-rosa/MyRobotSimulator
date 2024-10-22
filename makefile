@@ -2,30 +2,23 @@
 CXX = g++
 
 # Compiler Flags
-CXXFLAGS = -std=c++11 -Wall
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+CXXFLAGS = -std=c++11 -Wall -Iinclude/
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lstdc++
 
 
 TARGET = robot_sim
 TARGET_DEL = robot_sim.exe
 
-# Source files
-SRCS = main.cpp grid/grid.cpp robot/robot.cpp
+# Source file
+#SRCS = main.cpp grid/grid.cpp robot/robot.cpp
+SRCS := $(shell find ./src -type f -name "*.cpp")
 
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS)
-
-# Rule to compile .cpp files into .o files
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# Rule to compile .cpp files into .o files
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJS) $(TARGET)
