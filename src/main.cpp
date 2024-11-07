@@ -1,4 +1,5 @@
-#include "Game.hpp"
+//#include "Game.hpp"
+#include "GameManager.hpp"
 using namespace std;
 
 
@@ -6,17 +7,28 @@ int main(){
     
     srand(static_cast<unsigned>(time(NULL)));
     //init Game engine
-    Game game;
+    
+    try{
+        GameManager gameManager;
+        // Main loop
+        while (gameManager.running()) {
+            
+            //Update
+            gameManager.update();
 
-    // Main loop
-    while (game.running()) {
-        
-        //Update
-        game.update();
-
-        //Render
-        game.render();
+            //Render
+            gameManager.render();
+        }
     }
+    catch(const GameException& ex){
+        std::cout << ex.what() << std::endl;
+    }
+    catch(const std::exception& e)
+    {
+        std::cout << "Standard exception: " << e.what() << std::endl;
+    }
+
+    
     
     return 0;
 }

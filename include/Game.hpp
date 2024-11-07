@@ -1,8 +1,12 @@
-#include <SFML/Graphics.hpp>
-#include <iostream>
 #include <vector>
 #include <ctime>
-#include "robot.hpp"
+#include "entities/robot.hpp"
+#include "tiles/tileManager.hpp"
+#include "CollisionChecker.hpp"
+#include "objects/object_spawner.hpp"
+#include "header/header.hpp"
+#include "menu/menu.hpp"
+#include <iostream>
 
 /*
     Class that acts as the game engine
@@ -12,46 +16,47 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+enum Mode
+{
+    INGAME,
+    PAUSE
+};
+
 class Game
 {
     private:
-        sf::RenderWindow* window;
-        sf::VideoMode videoMode;
-        sf::Event event;
-
         //Game objects
         Robot robot;
+        TileManager* tileManager;
+
+        CollisionChecker* collisionChecker;
+        ObjectSpawner* objectSpawner;
 
         //World
         sf::Texture worldBackgroundText;
         sf::RectangleShape worldBackground;
+        std::unique_ptr<Header> header;
+        Mode mode = INGAME;
+
 
         //Mouse positions
         sf::Vector2i mousePosWindow;
 
 
-        void initVariables();
-        void initWindow();
+        void initVariables(GamePanelInfo* gpInfo);
         void initRobot();
-        void initWorld();
-
-
 
     public:
-        Game();
+        GamePanelInfo* gamePanelInfo;
+
+
+        Game(GamePanelInfo* gpInfo);
         virtual ~Game();
-
-        //Accessors
-        const bool running() const;
-
-        //Functions
-        void pollEvents();
         
         void update();
-        void updateCollision();
-        
-        void render();
-        void renderWorld();
+        void updateWindowCollision();
+
+        void render(sf::RenderTarget* target);
 };
 
 
