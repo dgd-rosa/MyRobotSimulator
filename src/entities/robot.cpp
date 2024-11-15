@@ -10,6 +10,7 @@ void Robot::initVariables()
     this->velocity = sf::Vector2f(0.f, 0.f);
 
     this->points = 0;
+    this->life_points = 6;
     this->battery = new Battery();
 }
 
@@ -87,22 +88,53 @@ void Robot::initShape()
     this->collisionRect.setSize(sf::Vector2f(spriteBounds.width-30, spriteBounds.height-24));
     this->collisionRect.setPosition(sf::Vector2f(spriteBounds.left+30/2, spriteBounds.top+24/2));
     this->collisionRect.setFillColor(sf::Color::Red);
+
+    
 }
 
+void Robot::initAttackTexture()
+{
+    if(!this->lightAttackTextureUp.loadFromFile("images/bullets/robot_bullets/blue_bullet_up.png"))
+    {
+        throw GameException("Could not load Red Projectile Texture");
+    }
+    
+    this->lightAttackTextureUp.setSmooth(false);
+
+
+    if(!this->lightAttackTextureDown.loadFromFile("images/bullets/robot_bullets/blue_bullet_down.png"))
+    {
+        throw GameException("Could not load Red Projectile Texture");
+    }
+    
+    this->lightAttackTextureDown.setSmooth(false);
+
+
+    if(!this->lightAttackTextureLeft.loadFromFile("images/bullets/robot_bullets/blue_bullet_left.png"))
+    {
+        throw GameException("Could not load Red Projectile Texture");
+    }
+    
+    this->lightAttackTextureLeft.setSmooth(false);
+
+
+    if(!this->lightAttackTextureRight.loadFromFile("images/bullets/robot_bullets/blue_bullet_right.png"))
+    {
+        throw GameException("Could not load Red Projectile Texture");
+    }
+    
+    this->lightAttackTextureRight.setSmooth(false);
+}
 
 Robot::Robot(float start_x, float start_y){
     this->sprite.setPosition(start_x, start_y);
-
     this->initVariables();
     this->initShape();
+    this->initAttackTexture();
 }
 
-Robot::~Robot(){
-}
-
-const sf::Vector2f & Robot::getPos() const
+Robot::~Robot()
 {
-    return this->sprite.getPosition();
 }
 
 unsigned int Robot::getPoints()
@@ -110,25 +142,35 @@ unsigned int Robot::getPoints()
     return this->points;
 }
 
+unsigned int Robot::getBatteryValue()
+{
+    return this->battery->battery;
+}
+
+unsigned int Robot::getLifePoints()
+{
+    return this->life_points;
+}
+
 void Robot::updateInput()
 {
     //Keyboard input
     //Left
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
     {
         this->direction = LEFT;
         this->setVelocity(-this->movementSpeed, 0);
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
         this->direction = RIGHT;
         this->setVelocity(this->movementSpeed, 0);
     }
-    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
     {
         this->direction = UP;
         this->setVelocity(0, -this->movementSpeed);
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
         this->direction = DOWN;
         this->setVelocity(0, this->movementSpeed);
     }
@@ -153,8 +195,17 @@ void Robot::updateInput()
             this->spriteCounter = 0;
         }
     }
+}
 
-    
+Projectile* Robot::shoot()
+{
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+    {
+        return this->lightAttack();
+    }
+    else{
+        return nullptr;
+    }
 }
 
 void Robot::moveAfterCollision(sf::FloatRect myBounds, sf::FloatRect obstacleBounds, bool isDamaged)
@@ -212,58 +263,25 @@ void Robot::updateMovement()
 }
 
 
-
-void Robot::checkObstacles(CollisionChecker* collisionChecker)
+void Robot::pickUpObject(SuperObject* obj)
 {
-    if(collisionChecker->checkTile(this))
+    switch (obj->type)
     {
-        this->setVelocity(0.f, 0.f);
-    }
-
-    //Chekc PowerUps
-    bool is_powerUp = true;
-    int index = collisionChecker->checkObject(this, true, is_powerUp);
-
-    //An object was picked up
-    if(index != -1)
-    {
-        pickUpObject(index, collisionChecker->objSpawner->powerUps);
-        //TODO: Check this the bool value
-        collisionChecker->objSpawner->removeObject(index, is_powerUp);
+    case POWER_UP:
+        this->pickUpPowerUp(dynamic_cast<PowerUpObject*>(obj));
+        break;
+    case POINTS:
+        this->pickUpPoint(dynamic_cast<PointObject*>(obj));
+        break;
+    default:
+        break;
     }
     
-
-    is_powerUp = false; //change boolean to check points
-    index = collisionChecker->checkObject(this, true, is_powerUp);
-    //An object was picked up
-    if(index != -1)
-    {
-        pickUpObject(index, collisionChecker->objSpawner->points);
-        //TODO: Check this the bool value
-        collisionChecker->objSpawner->removeObject(index, is_powerUp);
-    }
-}
-
-void Robot::pickUpObject(int idx, std::vector<SuperObject*>& objs)
-{
-    if(idx != -1)
-    {
-        switch (objs[idx]->type)
-        {
-        case POWER_UP:
-            this->pickUpPowerUp(dynamic_cast<PowerUpObject*>(objs[idx]));
-            break;
-        case POINTS:
-            this->pickUpPoint(dynamic_cast<PointObject*>(objs[idx]));
-            break;
-        default:
-            break;
-        }
-    }
 }
 
 void Robot::pickUpPowerUp(PowerUpObject* obj)
 {
+    std::cout << "Pick Up PowerUp" << std::endl;
     switch (obj->powerUp_type)
     {
     case BATTERY_BOOST:
@@ -281,14 +299,63 @@ void Robot::pickUpPoint(PointObject* obj)
 }
 
 
-
-void Robot::update(CollisionChecker* collisionChecker)
+void Robot::obstacleCollision()
 {
-    this->updateInput();
+    this->setVelocity(0.f, 0.f);
+}
 
-    //Check Collision
-    this->checkObstacles(collisionChecker);
-    
+void Robot::hitByProjectile(Projectile* projectile)
+{
+    if(projectile == nullptr)
+        return;
+
+    if(this->life_points < projectile->damage)
+    {
+        this->life_points = 0;
+    }
+    else
+    {
+        this->life_points -= projectile->damage;
+    }
+    std::cout << "Hit by projectile! Current Life points: " << this->life_points << std::endl;
+}
+
+Projectile* Robot::lightAttack()
+{
+    chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
+
+    if(firstShot)
+    {
+        this->lastTimeShot = now - this->shoot_cooldown;
+        this->firstShot = false;
+    }
+
+    if(now - this->lastTimeShot > this->shoot_cooldown)
+    {
+        this->lastTimeShot = now;
+        switch (this->direction)
+        {
+        case UP:
+            return new Projectile(this->lightAttackTextureUp, this->direction, this->getPos().x, this->getPos().y, 2.f, 2);
+            break;
+        case DOWN:
+            return new Projectile(this->lightAttackTextureDown, this->direction, this->getPos().x, this->getPos().y, 2.f, 2);
+            break;
+        case LEFT:
+            return new Projectile(this->lightAttackTextureLeft, this->direction, this->getPos().x, this->getPos().y, 2.f, 2);
+            break;
+        case RIGHT:
+            return new Projectile(this->lightAttackTextureRight, this->direction, this->getPos().x, this->getPos().y, 2.f, 2);
+            break;
+        }
+    }
+    else{
+        return nullptr;
+    }
+}
+
+void Robot::update()
+{   
     //Update Robot Movement
     this->updateMovement();
 

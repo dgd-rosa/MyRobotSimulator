@@ -8,7 +8,8 @@
 enum MenuOptions
 {
     START_GAME=0,
-    EXIT=1
+    SCOREBOARD=1,
+    EXIT=2
 };
 
 class Menu
@@ -19,12 +20,14 @@ class Menu
         sf::Font font;
         sf::Text startText;
         sf::Text exitText;
-        sf::Text test;
+        sf::Text scoreBoardText;
 
         sf::Color defaultColor = sf::Color::White;
         sf::Color selectedColor = sf::Color::Yellow;
 
-    
+        sf::Time cooldown = sf::milliseconds(200);
+        sf::Clock clock;
+
         Menu();
 
         void navigate();

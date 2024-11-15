@@ -8,6 +8,7 @@ class OBJ_Screw : public PointObject
 {
     public:
         OBJ_Screw();
+        ~OBJ_Screw() = default;
 };
 
 #endif

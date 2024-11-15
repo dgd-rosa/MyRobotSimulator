@@ -1,8 +1,6 @@
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include "tiles/gameTile.hpp"
 #include "entities/entity.hpp"
-#include "CollisionChecker.hpp"
 #include "entities/battery.hpp"
 
 #ifndef ROBOT_HPP
@@ -16,10 +14,20 @@ class Robot : public Entity{
         unsigned int points = 0;
         unsigned int point_multiplier = 1;
         Battery* battery;
-        
+
+        sf::Texture lightAttackTextureUp;
+        sf::Texture lightAttackTextureDown;
+        sf::Texture lightAttackTextureLeft;
+        sf::Texture lightAttackTextureRight;
+
+        //Shooting Variables
+        chrono::milliseconds shoot_cooldown = std::chrono::milliseconds(3000);
+        chrono::time_point<chrono::steady_clock> lastTimeShot = chrono::steady_clock::now();
+        bool firstShot = true;
 
         void initShape();
         void initVariables();
+        void initAttackTexture();
         
 
     public:
@@ -27,8 +35,9 @@ class Robot : public Entity{
         virtual ~Robot();
 
         //Accessor
-        const sf::Vector2f& getPos() const;
         unsigned int getPoints();
+        unsigned int getBatteryValue();
+        unsigned int getLifePoints();
 
         //Modifiers
         
@@ -36,16 +45,22 @@ class Robot : public Entity{
         // Functions
         void updateInput();
         void updateMovement();
-        bool obstacleCollision(sf::Sprite obstacle);
+        Projectile* shoot();
+        
+        //bool obstacleCollision(sf::Sprite obstacle);
+        void obstacleCollision() override;
+        
         void moveAfterCollision(sf::FloatRect myBounds, sf::FloatRect obstacleBounds, bool isDamaged);
-        void checkObstacles(CollisionChecker* collisionChecker);
-        void pickUpObject(int idx, std::vector<SuperObject*>& objs);
+        
+        void pickUpObject(SuperObject* obj) override;
         void pickUpPowerUp(PowerUpObject* obj);
         void pickUpPoint(PointObject* obj);
+        void hitByProjectile(Projectile* projectile) override;
         
-        
+        //attacks
+        Projectile* lightAttack();
 
-        void update(CollisionChecker* collisionChecker);
+        void update();
         void render(sf::RenderTarget* target);
 };
 

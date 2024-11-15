@@ -53,6 +53,10 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "*.txx": "cpp"
+        "*.txx": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "list": "cpp",
+        "unordered_set": "cpp"
     }
 }

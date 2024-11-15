@@ -1,6 +1,5 @@
 #include <vector>
 #include <ctime>
-#include "entities/robot.hpp"
 #include "tiles/tileManager.hpp"
 #include "CollisionChecker.hpp"
 #include "objects/object_spawner.hpp"
@@ -16,11 +15,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-enum Mode
-{
-    INGAME,
-    PAUSE
-};
 
 class Game
 {
@@ -28,15 +22,25 @@ class Game
         //Game objects
         Robot robot;
         TileManager* tileManager;
+        std::vector<Enemy*> enemyList;
+        std::vector<Projectile*> enemyProjectiles;
+        std::vector<Projectile*> robotProjectiles;
 
         CollisionChecker* collisionChecker;
         ObjectSpawner* objectSpawner;
+        std::unique_ptr<ProjectileManager> projectileManager;
+        std::unique_ptr<EnemyManager> enemyManager;
 
         //World
         sf::Texture worldBackgroundText;
         sf::RectangleShape worldBackground;
         std::unique_ptr<Header> header;
         Mode mode = INGAME;
+
+        //Pause Mode
+        sf::RectangleShape pauseBackground;
+        sf::Font font;
+        sf::Text pauseText;
 
 
         //Mouse positions
@@ -45,6 +49,7 @@ class Game
 
         void initVariables(GamePanelInfo* gpInfo);
         void initRobot();
+        void initPauseText();
 
     public:
         GamePanelInfo* gamePanelInfo;
@@ -53,8 +58,16 @@ class Game
         Game(GamePanelInfo* gpInfo);
         virtual ~Game();
         
-        void update();
+        void checkGameOver();
+        void pauseGame();
+        void resumeGame();
+        void handleEnterPressed();
+        
+        void shootProjectiles();
+        void updateCollisions();
         void updateWindowCollision();
+        void update();
+
 
         void render(sf::RenderTarget* target);
 };

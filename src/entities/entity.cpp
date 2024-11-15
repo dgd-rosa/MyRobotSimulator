@@ -15,6 +15,21 @@ sf::Vector2f Entity::getVelocity()
     return this->velocity;
 }
 
+const sf::Vector2f & Entity::getPos() const
+{
+    return this->sprite.getPosition();
+}
+
+const Direction Entity::getDirection() const
+{
+    return this->direction;
+}
+
+const sf::FloatRect Entity::getCollisionBounds() const
+{
+    return this->collisionRect.getGlobalBounds();
+}
+
 void Entity::setPosition(sf::Vector2f pos)
 {
     this->sprite.setPosition(pos);
@@ -37,4 +52,13 @@ void Entity::setVelocity(const float velocity_x, const float velocity_y)
 {
     this->velocity.x = velocity_x;
     this->velocity.y = velocity_y;
+}
+
+/**
+ *      Method for Obstacle Collision -> Set velocity to zero
+ */
+void Entity::obstacleCollision()
+{
+    std::cout << "Entity: Obstacle collision" << std::endl;
+    this->setVelocity(0.f, 0.f);
 }

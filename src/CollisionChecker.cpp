@@ -12,7 +12,7 @@ bool CollisionChecker::checkTile(Entity* entity)
     if(entity == nullptr)
         throw GameException("Checktile: Entity pointer is null");
         
-    sf::FloatRect entityCollisionBounds = entity->collisionRect.getGlobalBounds();
+    sf::FloatRect entityCollisionBounds = entity->getCollisionBounds();
 
     int entityLeftWorldX = entityCollisionBounds.left;
     int entityRightWorldX = entityCollisionBounds.left + entityCollisionBounds.width;
@@ -38,7 +38,7 @@ bool CollisionChecker::checkTile(Entity* entity)
     sf::Vector2f velocity = entity->getVelocity();
 
 
-    switch (entity->direction)
+    switch (entity->getDirection())
     {
         case UP:
         {
@@ -69,6 +69,7 @@ bool CollisionChecker::checkTile(Entity* entity)
                 std::cout << "Out of the window" << std::endl;
                 return false;
             }
+
             return this->checkTileLine(entityLeftCol, entityRightCol, entityBottomRow, true);
             break;
         }
@@ -108,6 +109,19 @@ bool CollisionChecker::checkTile(Entity* entity)
 
     return false;
 
+}
+
+void CollisionChecker::checkObstacles(Entity* entity)
+{
+    if(entity == nullptr)
+    {
+        return;
+    }
+
+    if(this->checkTile(entity))
+    {
+        entity->obstacleCollision();
+    }
 }
 
 
@@ -184,55 +198,83 @@ bool CollisionChecker::checkWindowCollision(Entity* entity)
 }
 
 
-int CollisionChecker::checkObject(Entity* entity, bool player, bool is_powerUp)
+void CollisionChecker::checkObjects(Entity* entity, std::vector<SuperObject*>& object_list)
 {
-    int index = -1;
-
-    if(entity == nullptr)
+    unsigned counter = 0;
+    for(SuperObject* obj : object_list)
     {
-        throw GameException("Check Object with null entity");
-    }
-
-    //Check For PowerUps
-    if(is_powerUp)
-    {
-        for(int i=0; i < this->objSpawner->current_powerUps; i++)
+        if(obj->getBounds().intersects(entity->getBounds()))
         {
-            if(this->objSpawner->powerUps[i] != nullptr)
-            {
-                //Intersected
-                if(this->objSpawner->powerUps[i]->bounds.intersects(entity->getBounds()))
-                {
-                    if(player)
-                    {
-                        index = i;
-                    }
-                    break;
-                }
-            }
-        }    
-    }
-    else
-    {
-        //Check For Points
-        for(int i=0; i < this->objSpawner->points.size(); i++)
-        {
-            if(this->objSpawner->points[i] != nullptr)
-            {
-                //Intersected
-                if(this->objSpawner->points[i]->bounds.intersects(entity->getBounds()))
-                {
-                    std::cout << "Intersected" << endl;
-                    if(player)
-                    {
-                        index = i;
-                    }
-                    break;
-                }
-            }
+            entity->pickUpObject(obj);
+
+            //Delete object from List
+            delete obj;
+            object_list[counter] = nullptr;
+            object_list.erase(object_list.begin() + counter);
+            --counter;
+            return;
         }
+        ++counter;
     }
-
-    return index;
+    
 }
+
+void CollisionChecker::checkRobotProjectiles(Entity* entity, unique_ptr<ProjectileManager> &projectileManager)
+{
+    auto robotProjectiles = projectileManager->getRobotProjectiles();
+
+    unsigned counter = 0;
+    for(Projectile* proj : robotProjectiles)
+    {
+        if(proj->getBounds().intersects(entity->getBounds()))
+        {
+            
+            entity->hitByProjectile(proj);
+            std::cout << "Hit Enemy!!! It got " << entity->getLifePoints() << " life points!" << std::endl;
+
+            //Delete object from List
+            projectileManager->removeRobotProjectile(counter);
+            
+            return;
+        }
+        ++counter;
+    }
+}
+
+void CollisionChecker::checkRobotHitByProjectiles(Entity* entity, unique_ptr<ProjectileManager> &projectileManager)
+{
+    auto enemyProjectiles = projectileManager->getEnemyProjectiles();
+
+    unsigned counter = 0;
+    for(Projectile* proj : enemyProjectiles)
+    {
+        if(proj->getBounds().intersects(entity->getBounds()))
+        {
+            entity->hitByProjectile(proj);
+
+            //Delete object from List
+            projectileManager->removeEnemyProjectile(counter);
+            
+            return;
+        }
+        ++counter;
+    }
+}
+
+void CollisionChecker::checkEnemyListHitByProjectiles(unique_ptr<EnemyManager> &enemyManager, unique_ptr<ProjectileManager> &projectileManager)
+{
+    for(Entity* enemy : enemyManager->getEnemyList())
+    {
+        this->checkRobotProjectiles(enemy, projectileManager);
+    }
+}
+
+void CollisionChecker::checkEnemyListObstacles(unique_ptr<EnemyManager> &enemyManager)
+{
+    for(Entity* enemy : enemyManager->getEnemyList())
+    {
+        this->checkObstacles(enemy);
+    }
+}
+
 

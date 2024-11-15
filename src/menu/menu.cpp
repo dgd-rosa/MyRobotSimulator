@@ -12,28 +12,41 @@ Menu::Menu()
     startText.setString("Start Game");
     startText.setCharacterSize(50);
     startText.setFillColor(defaultColor);
-    startText.setPosition(300, 200);  // Positioning the text
+    startText.setPosition(300, 150);  // Positioning the text
+
+    // Scoreboard button
+    scoreBoardText.setFont(font);
+    scoreBoardText.setString("Scoreboard");
+    scoreBoardText.setCharacterSize(50);
+    scoreBoardText.setFillColor(defaultColor);
+    scoreBoardText.setPosition(300, 250);  // Positioning the text
 
     // Exit button
     exitText.setFont(font);
     exitText.setString("Exit");
     exitText.setCharacterSize(50);
     exitText.setFillColor(defaultColor);
-    exitText.setPosition(300, 300);  // Positioning the text
+    exitText.setPosition(300, 350);  // Positioning the text
 
     
 }
 
 void Menu::navigate()
 {
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && currentOption > 0)
+    if(this->clock.getElapsedTime() > this->cooldown)
     {
-        currentOption--;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && menuOption > START_GAME)
+        {
+            currentOption--;
+            this->clock.restart();
+        }
+        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && currentOption < EXIT)
+        {
+            currentOption++;
+            this->clock.restart();
+        }
     }
-    else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && currentOption < 1)
-    {
-        currentOption++;
-    }
+    
     menuOption = static_cast<MenuOptions>(currentOption);
 }
 
@@ -52,15 +65,22 @@ void Menu::render(sf::RenderTarget* target)
     if(target == nullptr)
         throw GameException("Render target is null");
     
-    if (currentOption == 0) {
+    if (menuOption == START_GAME) {
         startText.setFillColor(selectedColor);
+        scoreBoardText.setFillColor(defaultColor);
         exitText.setFillColor(defaultColor);
-    } else if (currentOption == 1) {
+    } else if (menuOption == SCOREBOARD) {
         startText.setFillColor(defaultColor);
+        scoreBoardText.setFillColor(selectedColor);
+        exitText.setFillColor(defaultColor);
+    } else if(menuOption == EXIT) {
+        startText.setFillColor(defaultColor);
+        scoreBoardText.setFillColor(defaultColor);
         exitText.setFillColor(selectedColor);
     }
         
-    target->draw(startText);
+    target->draw(this->startText);
+    target->draw(this->scoreBoardText);
     target->draw(this->exitText);
     
 }

@@ -21,7 +21,7 @@ void GameManager::initWindow()
 {
     this->videoMode.width = this->gamePanelInfo->screenWidth;
     this->videoMode.height = this->gamePanelInfo->screenHeight;
-    this->window = new sf::RenderWindow(this->videoMode, "Robot 2D2 Simulator", sf::Style::Titlebar | sf::Style::Close);
+    this->window = new sf::RenderWindow(this->videoMode, "Robot 2D Simulator", sf::Style::Titlebar | sf::Style::Close);
     this->window->setFramerateLimit(60);
 }
 
@@ -51,7 +51,7 @@ void GameManager::pollEvents()
                     }
                 }
                 
-                if(this->state == MENU)
+                else if(this->state == MENU)
                 {
                     if(this->menu->isEnterPressed())
                     {
@@ -63,6 +63,14 @@ void GameManager::pollEvents()
                         }
                         else if(this->menu->menuOption == EXIT)
                             this->window->close();
+                    }
+                }
+
+                else if(this->event.key.code == sf::Keyboard::Enter)
+                {
+                    if(this->state == GAME)
+                    {
+                        this->game->handleEnterPressed();   
                     }
                 }
                 break;
@@ -92,8 +100,6 @@ void GameManager::render()
         -render either menu or game
         -display
     */
-
-    
 
     this->window->clear(sf::Color(0, 0, 0, 255));
 

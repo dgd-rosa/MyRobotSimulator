@@ -8,6 +8,7 @@ class OBJ_BatteryBoost : public PowerUpObject
 {
     public:
         OBJ_BatteryBoost();
+        ~OBJ_BatteryBoost() = default;
 };
 
 #endif
