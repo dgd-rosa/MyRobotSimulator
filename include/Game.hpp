@@ -7,6 +7,7 @@
 #include "menu/menu.hpp"
 #include <iostream>
 
+
 /*
     Class that acts as the game engine
     Wrapper Class
@@ -22,7 +23,6 @@ class Game
         //Game objects
         Robot robot;
         TileManager* tileManager;
-        std::vector<Enemy*> enemyList;
         std::vector<Projectile*> enemyProjectiles;
         std::vector<Projectile*> robotProjectiles;
 
@@ -30,6 +30,7 @@ class Game
         ObjectSpawner* objectSpawner;
         std::unique_ptr<ProjectileManager> projectileManager;
         std::unique_ptr<EnemyManager> enemyManager;
+        std::shared_ptr<SoundManager> soundManager;
 
         //World
         sf::Texture worldBackgroundText;
@@ -47,15 +48,14 @@ class Game
         sf::Vector2i mousePosWindow;
 
 
-        void initVariables(GamePanelInfo* gpInfo);
+        void initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager>);
         void initRobot();
         void initPauseText();
 
     public:
         GamePanelInfo* gamePanelInfo;
 
-
-        Game(GamePanelInfo* gpInfo);
+        Game(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager>);
         virtual ~Game();
         
         void checkGameOver();

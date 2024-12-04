@@ -1,5 +1,10 @@
 #include "Game.hpp"
 #include "menu/menu.hpp"
+#include "sound/sound.hpp"
+#include "json.hpp"
+#include <fstream>
+
+using json = nlohmann::json;
 
 #ifndef GAME_MANAGER_HPP
 #define GAME_MANAGER_HPP
@@ -24,9 +29,11 @@ class GameManager
     public:
         std::unique_ptr<Game> game;
         std::unique_ptr<Menu> menu;
+        std::shared_ptr<SoundManager> soundManager;
         GameState state;
 
         GamePanelInfo* gamePanelInfo;
+
 
         GameManager();
 

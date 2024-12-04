@@ -9,7 +9,9 @@ class Enemy : public Entity
         Direction facing_direction = RIGHT;
 
         //Shot
-        chrono::milliseconds shoot_cooldown = std::chrono::milliseconds(3000);
+        float light_attack_speed;
+        int light_attack_damage;
+        chrono::milliseconds light_attack_cooldown;
         chrono::time_point<chrono::steady_clock> lastTimeShot = chrono::steady_clock::now();
         bool firstShot = true;
 
@@ -17,26 +19,39 @@ class Enemy : public Entity
         chrono::time_point<chrono::steady_clock> time_robot_in_sight = chrono::steady_clock::now();
         bool startedToWait = false;
 
+
+        std::string right1TexturePath;
+        std::string right2TexturePath;
+        std::string left1TexturePath;
+        std::string left2TexturePath;
+
         sf::Texture lightAttackTexture;
         sf::Texture lightAttackTextureUp;
         sf::Texture lightAttackTextureDown;
         sf::Texture lightAttackTextureLeft;
         sf::Texture lightAttackTextureRight;
 
+        std::string lightAttackUpPath;
+        std::string lightAttackDownPath;
+        std::string lightAttackLeftPath;
+        std::string lightAttackRightPath;
 
         void initShape();
+        void initConfigFile();
         void initAttackTexture();
 
     public:
-        Enemy(float start_x=100.f, float start_y=243.f);
+        Enemy(float start_x, float start_y, std::weak_ptr<SoundManager> soundManager);
         ~Enemy() = default;
 
 
         void updateMovement(Robot* robot);
+        void moveEnemy();
 
         Projectile* shootToRobot(Robot* robot);
         Projectile* createProjectileToShoot();
         void hitByProjectile(Projectile* projectile) override;
+        void dyingAnimation() override;
 
 
         //Bollean

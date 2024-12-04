@@ -59,6 +59,5 @@ void Entity::setVelocity(const float velocity_x, const float velocity_y)
  */
 void Entity::obstacleCollision()
 {
-    std::cout << "Entity: Obstacle collision" << std::endl;
     this->setVelocity(0.f, 0.f);
 }

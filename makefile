@@ -2,8 +2,8 @@
 CXX = g++
 
 # Compiler Flags
-CXXFLAGS = -std=c++14 -Wall -Iinclude/
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lstdc++
+CXXFLAGS = -g -std=c++14 -Wall -Iinclude/
+LDFLAGS = -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lstdc++
 
 
 TARGET = robot_sim

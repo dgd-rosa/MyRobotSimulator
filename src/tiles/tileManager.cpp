@@ -15,26 +15,44 @@ void printMap(std::vector<std::vector<int>> map)
 TileManager::TileManager(GamePanelInfo* gpInfo)
 {
     this->gpInfo = gpInfo;
+    this->initConfigPaths();
     this->initTiles();
     this->loadMap("maps/map1.txt");
 
     this->gpInfo->setScreenSize(this->map.size(), this->map[0].size());
+}
 
-    std::cout << "!!!!!!!!!!!!!AFTER SET SCREEN SIZE!!!!!!!!!!!!!!1" << std::endl;
-    std::cout << "set:  screen: " << gpInfo->screenWidth << "," << gpInfo->screenHeight << std::endl;
-    std::cout << "set: n (rows, cols): " << gpInfo->maxScreenRow << "," <<  gpInfo->maxScreenCol << std::endl;
+void TileManager::initConfigPaths()
+{
+    // Open the JSON file
+    std::ifstream file("config.json");
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config.json" << std::endl;
+        return;
+    }
 
+    // Parse the JSON file
+    json config;
+    try {
+        file >> config;
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+        return;
+    }
+
+    this->ground_path = config["GameTiles"]["groundPath"];
+    this->wall_path = config["GameTiles"]["wallPath"];
 }
 
 void TileManager::initTiles()
 {
     //floor
     this->tiles.push_back(new GameTile());
-    this->tiles[0]->initSprite("images/ground_tile.png", 0, 0, this->gpInfo->tileSize, this->gpInfo->tileSize);
+    this->tiles[0]->initSprite(this->ground_path, 0, 0, this->gpInfo->tileSize, this->gpInfo->tileSize);
     this->tiles[0]->collision = false;
 
     this->tiles.push_back(new GameTile());
-    this->tiles[1]->initSprite("images/Brickwall3_Texture.png", 0, 0, this->gpInfo->tileSize, this->gpInfo->tileSize);
+    this->tiles[1]->initSprite(this->wall_path, 0, 0, this->gpInfo->tileSize, this->gpInfo->tileSize);
     this->tiles[1]->collision = true;
 }
 

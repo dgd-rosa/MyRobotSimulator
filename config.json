@@ -1,0 +1,88 @@
+{
+    "GameSettings":{
+        "WindowWidth": 1280,
+        "WindowHeight": 720,
+        "Title": "Battery Run",
+        "FullScreen": true
+    },
+
+    "GameTiles":{
+        "tilesPath": "/home/dgd_rosa/Projects/MyRobotSimulator/images",
+        "groundPath": "/home/dgd_rosa/Projects/MyRobotSimulator/images/ground_tile.png",
+        "wallPath": "/home/dgd_rosa/Projects/MyRobotSimulator/images/Brickwall3_Texture.png"
+    },
+
+    "Robot":{
+        "speed": 5.0,
+        "xp_for_next_level": 200,
+        "xp_multiplier": 2,
+        "lifePoints": 10,
+        "ligthAttackCooldown": 500,
+        "lightAttackSpeed": 8.0,
+        "lightAttackDamage": 2,
+
+
+        "right1Path": "images/robot/right1.png",
+        "right2Path": "images/robot/right2.png",
+        "left1Path": "images/robot/left1.png",
+        "left2Path": "images/robot/left2.png",
+        "up1Path": "images/robot/up1.png",
+        "up2Path": "images/robot/up2.png",
+        "down1Path": "images/robot/down1.png",
+        "down2Path": "images/robot/down2.png",
+
+        "lightAttackUpPath": "images/bullets/robot_bullets/blue_bullet_up.png",
+        "lightAttackDownPath": "images/bullets/robot_bullets/blue_bullet_down.png",
+        "lightAttackLeftPath": "images/bullets/robot_bullets/blue_bullet_left.png",
+        "lightAttackRightPath": "images/bullets/robot_bullets/blue_bullet_right.png"
+    },
+
+    "Enemy":{
+        "lifePoints": 4,
+        "speed": 0.7,
+        "ligthAttackCooldown": 4000,
+        "lightAttackSpeed": 7.0,
+        "lightAttackDamage": 1,
+
+        "right1Path": "images/enemy/right1.png",
+        "right2Path": "images/enemy/right2.png",
+        "left1Path": "images/enemy/left1.png",
+        "left2Path": "images/enemy/left2.png",
+        "lightAttackUpPath": "images/bullets/enemy_bullets/red_bullet_up.png",
+        "lightAttackDownPath": "images/bullets/enemy_bullets/red_bullet_down.png",
+        "lightAttackLeftPath": "images/bullets/enemy_bullets/red_bullet_left.png",
+        "lightAttackRightPath": "images/bullets/enemy_bullets/red_bullet_right.png"
+
+    },
+
+    "EnemyManager":{
+        "enemySpawnCooldown": 10000,
+        "maxNumberEnemy": 10
+    },
+
+    "ObjectSpawner":{
+        "max_number_screws": 10,
+        "max_number_powerups": 3,
+        "screw_cooldown": 1000,
+        "powerup_cooldown": 4000
+    },
+
+    "SoundManager":{
+        "GameMusicPath": "sound/Music/gameMusic.wav",
+        "MusicVolume": 50.0,
+        "HitSoundPath": "sound/SoundEffects/hitmonster.wav",
+        "LightAttackSoundPath": "sound/SoundEffects/light_attack.wav",
+        "PickBoostSoundPath": "sound/SoundEffects/pickBoost.wav",
+        "PickScrewSoundPath": "sound/SoundEffects/pickCoin.wav"
+    },
+    
+    "Objects":{
+        "Heart":{
+            "blank_path": "images/objects/heart/heart_blank.png",
+            "half_path": "images/objects/heart/heart_half.png",
+            "full_path": "images/objects/heart/heart_full.png"
+        },
+        "Screw": "images/objects/screw.png",
+        "BatteryBoost": "images/objects/battery_boost.png"
+    }
+}

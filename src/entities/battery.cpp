@@ -55,7 +55,6 @@ void Battery::initShape()
 
 void Battery::boost(unsigned int boostPercentage)
 {
-    std::cout << "Battery BOOST HERE WE GOOOOO!!!" << std::endl;
     this->battery += boostPercentage;
     if(battery > 100)
         this->battery = 100;

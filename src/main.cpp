@@ -5,9 +5,7 @@ using namespace std;
 
 int main(){
     
-    srand(static_cast<unsigned>(time(NULL)));
-    //init Game engine
-    
+
     try{
         GameManager gameManager;
         // Main loop

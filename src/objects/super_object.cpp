@@ -24,5 +24,6 @@ void SuperObject::render(sf::RenderTarget* target)
         return;
     }
 
-    target->draw(this->sprite);      
+    target->draw(this->sprite);
+       
 }

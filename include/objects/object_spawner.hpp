@@ -15,6 +15,8 @@ using namespace std;
 
 class ObjectSpawner
 {
+    private:
+        void initConfigFile();
     public:
         ObjectSpawner();
 
@@ -22,16 +24,16 @@ class ObjectSpawner
         int current_powerUps = 0;
 
         chrono::time_point<chrono::steady_clock> lastTimeUpdate_powerups = chrono::steady_clock::now();
-        chrono::seconds updateInterval_powerups = std::chrono::seconds(5);
+        chrono::milliseconds powerup_spawn_cooldown;
 
         chrono::time_point<chrono::steady_clock> lastTimeUpdate_points = chrono::steady_clock::now();
-        chrono::milliseconds updateInterval_points = std::chrono::milliseconds(1600);
+        chrono::milliseconds screw_spawn_cooldown;
 
         vector<SuperObject*> powerUps;
 
         vector<SuperObject*> points;
         
-        unsigned int max_point_objs = 10;
+        unsigned int max_number_screws = 10;
 
         
         void removeObject(int idx, bool powerUp);

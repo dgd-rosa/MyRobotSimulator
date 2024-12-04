@@ -20,13 +20,16 @@ class CollisionChecker
 
         bool checkTile(Entity* entity);
         void checkObstacles(Entity* entity);
+        void checkEntities(Entity* entity1, Entity* entity2);
         bool checkTileLine(int low_idx, int high_idx, int stable_idx, bool horizontal);
         bool checkWindowCollision(Entity* entity);
+
 
 
         void checkObjects(Entity* entity, std::vector<SuperObject*>& object_list);
         void checkRobotProjectiles(Entity* entity, unique_ptr<ProjectileManager> &projectileManager);
         void checkRobotHitByProjectiles(Entity* entity, unique_ptr<ProjectileManager> &projectileManager);
+        void checkRobotHitEnemies(Entity* entity, std::vector<Enemy*> enemies);
         void checkEnemyListHitByProjectiles(unique_ptr<EnemyManager> &enemyManager, unique_ptr<ProjectileManager> &projectileManager);
         void checkEnemyListObstacles(unique_ptr<EnemyManager> &enemyManager);
 };  

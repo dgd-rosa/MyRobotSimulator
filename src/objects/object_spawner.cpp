@@ -2,7 +2,41 @@
 
 ObjectSpawner::ObjectSpawner()
 {
+    this->initConfigFile();
+}
 
+void ObjectSpawner::initConfigFile()
+{
+    // Open the JSON file
+    std::ifstream file("config.json");
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config.json" << std::endl;
+        return;
+    }
+
+    // Parse the JSON file
+    json config;
+    try {
+        file >> config;
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+        return;
+    }
+
+    try{
+        int screwCooldown = config["ObjectSpawner"]["screw_cooldown"];
+        this->screw_spawn_cooldown = std::chrono::milliseconds(screwCooldown);
+        int powerUpCooldown = config["ObjectSpawner"]["powerup_cooldown"];
+        this->powerup_spawn_cooldown = std::chrono::milliseconds(powerUpCooldown);
+
+        this->max_number_powerUps = config["ObjectSpawner"]["max_number_powerups"];
+        this->max_number_screws = config["ObjectSpawner"]["max_number_screws"];
+    }
+    catch(const std::exception& e)
+    {
+        throw GameException("Could not load Object Spawner values from config file");
+    }
+    
 }
 
 void ObjectSpawner::update(TileManager* tilesManager, Entity* robot)
@@ -10,11 +44,11 @@ void ObjectSpawner::update(TileManager* tilesManager, Entity* robot)
     auto now = std::chrono::steady_clock::now();
 
     //Points UPDATE
-    if(now - this->lastTimeUpdate_points > this->updateInterval_points)
+    if(now - this->lastTimeUpdate_points > this->screw_spawn_cooldown)
     {
         this->lastTimeUpdate_points = now;
 
-        if(this->points.size() < this->max_point_objs)
+        if(this->points.size() < this->max_number_screws)
         {
             //Generate Random Power Up -> chooses a random power up from the enum
             this->spawnObject(new OBJ_Screw(), tilesManager, robot, false);
@@ -23,13 +57,11 @@ void ObjectSpawner::update(TileManager* tilesManager, Entity* robot)
     
     
     //POWER UPS Update
-    if(now - this->lastTimeUpdate_powerups > this->updateInterval_powerups)
+    if(now - this->lastTimeUpdate_powerups > this->powerup_spawn_cooldown)
     {
         this->lastTimeUpdate_powerups = now;
-        
-        if(this->current_powerUps < this->max_number_powerUps)
+        if(this->powerUps.size() < this->max_number_powerUps)
         {
-            //TODO: Create a function to randomize localiton
             //Generate Random Power Up -> chooses a random power up from the enum
             this->spawnObject(this->generateRandomPowerUp(), tilesManager, robot, true);
         }
@@ -43,7 +75,6 @@ void ObjectSpawner::addObject(SuperObject* object, bool powerUp)
     if(powerUp)
     {
         this->powerUps.push_back(object);
-        this->current_powerUps++;
     }
     else{
         this->points.push_back(object);
@@ -54,8 +85,6 @@ void ObjectSpawner::removeObject(int idx, bool powerUp)
 {
     if(powerUp)
     {
-        this->current_powerUps--;
-
         //remove object
         delete this->powerUps[idx];
         this->powerUps[idx] = nullptr;
@@ -177,7 +206,7 @@ void ObjectSpawner::render(sf::RenderTarget* target)
     {
         throw GameException("Error rendering Objects");
     }
-    for(int i=0; i < current_powerUps; i++)
+    for(int i=0; i < this->powerUps.size(); i++)
     {
         if(this->powerUps[i] != nullptr)
         {

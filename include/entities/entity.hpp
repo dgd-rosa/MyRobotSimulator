@@ -3,6 +3,7 @@
 #include "objects/projectile.hpp"
 #include <iostream>
 #include "enum.hpp"
+#include "sound/sound.hpp"
 
 #ifndef ENTITY_HPP
 #define ENTITY_HPP
@@ -11,13 +12,19 @@
 class Entity
 {
     protected:
+        std::weak_ptr<SoundManager> soundManager;
+
         sf::Vector2f velocity;
-        int movementSpeed;
+        float movementSpeed;
         Direction direction;
         unsigned int life_points;
 
+        //counter
         unsigned int spriteCounter;
         unsigned int spriteNumber;
+        int dyingCounter;
+
+        
 
         //Texture
         sf::Texture right_texture1;
@@ -36,8 +43,14 @@ class Entity
         bool collisionOn = false;
 
 
+        //counter
+
+
     public:
-        
+        //state
+        bool attacking = false;
+        bool alive = true;
+        bool dying = false;
 
         //Constructor
         Entity();
@@ -60,6 +73,8 @@ class Entity
         virtual void obstacleCollision();
         virtual void pickUpObject(SuperObject* object){};
         virtual void hitByProjectile(Projectile* projectile){};
+        virtual void hitEntity(Entity* entity){};
+        virtual void dyingAnimation(){};
 };
 
 

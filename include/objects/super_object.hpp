@@ -1,5 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include "exceptions/GameException.hpp"
+#include <iostream>
+#include <fstream>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 #ifndef SUPEROBJECT_HPP
 #define SUPEROBJECT_HPP
@@ -21,7 +26,12 @@ class SuperObject
     public:
         virtual ~SuperObject() = default;
 
+        std::string texture_path;
+        std::string texture2_path;
+        std::string texture3_path;
         sf::Texture texture;
+        sf::Texture texture2;
+        sf::Texture texture3;
         sf::Sprite sprite;
         sf::Vector2f pos;
         sf::FloatRect bounds;

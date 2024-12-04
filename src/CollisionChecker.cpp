@@ -111,6 +111,9 @@ bool CollisionChecker::checkTile(Entity* entity)
 
 }
 
+/**
+ *         Method to check if an entitiy runs to obstacles
+ */
 void CollisionChecker::checkObstacles(Entity* entity)
 {
     if(entity == nullptr)
@@ -124,6 +127,36 @@ void CollisionChecker::checkObstacles(Entity* entity)
     }
 }
 
+
+void CollisionChecker::checkEntities(Entity* entity1, Entity* entity2)
+{
+    if(entity1 == nullptr || entity2 == nullptr)
+    {
+        return;
+    }
+
+    if(entity1->getBounds().intersects(entity2->getBounds()))
+    {
+        entity1->hitEntity(entity2);
+    }
+}
+
+void CollisionChecker::checkRobotHitEnemies(Entity* entity, std::vector<Enemy*> enemies)
+{
+    if(entity == nullptr)
+    {
+        return;
+    }
+
+    for(auto enemy : enemies)
+    {
+        //Dont hit enemies if its dying
+        if(enemy->dying == false && enemy->alive == true)
+        {
+            this->checkEntities(entity, enemy);
+        }
+    }
+}
 
 /**
  *  CheckTileLine:
@@ -223,6 +256,9 @@ void CollisionChecker::checkRobotProjectiles(Entity* entity, unique_ptr<Projecti
 {
     auto robotProjectiles = projectileManager->getRobotProjectiles();
 
+    if(entity->dying)
+        return;
+
     unsigned counter = 0;
     for(Projectile* proj : robotProjectiles)
     {
@@ -230,7 +266,6 @@ void CollisionChecker::checkRobotProjectiles(Entity* entity, unique_ptr<Projecti
         {
             
             entity->hitByProjectile(proj);
-            std::cout << "Hit Enemy!!! It got " << entity->getLifePoints() << " life points!" << std::endl;
 
             //Delete object from List
             projectileManager->removeRobotProjectile(counter);

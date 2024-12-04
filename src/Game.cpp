@@ -3,7 +3,8 @@
 
 // Private Functions
 
-void Game::initVariables(GamePanelInfo* gpInfo){
+void Game::initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> soundManager)
+{
     
     this->gamePanelInfo = gpInfo;
 
@@ -12,19 +13,20 @@ void Game::initVariables(GamePanelInfo* gpInfo){
 
     this->projectileManager = std::make_unique<ProjectileManager>();
 
-    this->enemyManager = std::make_unique<EnemyManager>();
-    this->enemyManager->addEnemy(new Enemy(100.f, 243.f));
-    this->enemyManager->addEnemy(new Enemy(400.f, 43.f));
+    this->soundManager = soundManager;
+    this->enemyManager = std::make_unique<EnemyManager>(soundManager);
+    this->enemyManager->addEnemy(new Enemy(120.f, 460.f, this->soundManager));
     
     this->objectSpawner = new ObjectSpawner();
     
     this->collisionChecker = new CollisionChecker(this->gamePanelInfo, this->tileManager, this->objectSpawner);
     
-    this->header = std::make_unique<Header>();
+    //TODO: change this hard coded value
+    this->header = std::make_unique<Header>(6, this->gamePanelInfo->tileSize);
 }
 
 void Game::initRobot(){
-    this->robot = Robot(200, 200);
+    this->robot = Robot(200, 200, this->soundManager);
 }
 
 void Game::initPauseText()
@@ -58,15 +60,28 @@ void Game::initPauseText()
 
 
 
-Game::Game(GamePanelInfo* gpInfo)
+Game::Game(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> soundManager)
+    : robot(100.0f, 200.0f, soundManager)
 {
-    this->initVariables(gpInfo);
+    this->initVariables(gpInfo, soundManager);
     this->initRobot();
     this->initPauseText();
 }
 
 Game::~Game()
 {
+    std::cout << "Game Destructor" << std::endl;
+    
+    this->enemyManager.reset();
+    this->header.reset();
+    this->projectileManager.reset();
+    
+    std::cout << "Sound Manager Use count: "<< this->soundManager.use_count() << std::endl;
+    this->soundManager.reset();
+    
+    
+    delete this->objectSpawner;
+    delete this->tileManager;
     delete this->collisionChecker;
 }
 
@@ -109,7 +124,9 @@ void Game::updateWindowCollision()
 void Game::updateCollisions()
 {
     //check for Obstacles collisions
+    this->collisionChecker->checkRobotHitEnemies(&this->robot, this->enemyManager->getEnemyList());
     this->collisionChecker->checkObstacles(&this->robot);
+
 
     //enemies
     this->collisionChecker->checkEnemyListObstacles(this->enemyManager);
@@ -162,7 +179,6 @@ void Game::handleEnterPressed()
 void Game::shootProjectiles()
 {
     this->projectileManager->addRobotProjectile(this->robot.shoot());
-
     
     this->projectileManager->addEnemyListProjectile(this->enemyManager->shootEnemyListToRobot(&this->robot));
     
@@ -174,21 +190,24 @@ void Game::update(){
     {   
 
         this->robot.updateInput();
-
-        this->enemyManager->updateEnemies(&this->robot);
+        this->enemyManager->updateEnemies(&this->robot, this->tileManager);
 
         this->shootProjectiles();
 
         this->projectileManager->updateProjectiles(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight);
-
         this->updateCollisions();
+
+        if(enemyManager->checkEnemyNumber())
+        {
+            std::cout << "Robot Killed an enemy!!!" << std::endl; 
+        }
 
         // Updates
         this->robot.update();
-
+        this->enemyManager->moveEnemies();
         this->objectSpawner->update(this->tileManager, &this->robot);
+        this->header->update(this->robot.getPoints(), this->robot.getLevel(), this->robot.getLifePoints());
 
-        this->header->update(this->robot.getPoints());
 
         this->updateWindowCollision();
 

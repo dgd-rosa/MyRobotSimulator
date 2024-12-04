@@ -7,7 +7,9 @@ GameManager::GameManager()
 
     this->menu = std::make_unique<Menu>();
     
-    this->game = std::make_unique<Game>(this->gamePanelInfo);                            
+    this->soundManager = std::make_shared<SoundManager>();                         
+
+    this->game = std::make_unique<Game>(this->gamePanelInfo, this->soundManager);
 
     this->state = MENU;
 
@@ -48,6 +50,7 @@ void GameManager::pollEvents()
                     {
                         this->state = MENU;
                         this->menu = std::make_unique<Menu>();
+                        this->soundManager->stopMusic();
                     }
                 }
                 
@@ -58,8 +61,9 @@ void GameManager::pollEvents()
                         if(this->menu->menuOption == START_GAME)
                         {
                             this->state = GAME;
-                            this->game = std::make_unique<Game>(this->gamePanelInfo);
+                            this->game = std::make_unique<Game>(this->gamePanelInfo, this->soundManager);
                             this->window->setSize(sf::Vector2u(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight));
+                            this->soundManager->playMusic();
                         }
                         else if(this->menu->menuOption == EXIT)
                             this->window->close();
