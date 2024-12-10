@@ -1,6 +1,7 @@
 #include <iostream>
 #include "tiles/gameTile.hpp"
 #include "entities/entity.hpp"
+#include "objects/OBJ_Heart.hpp"
 #include "entities/battery.hpp"
 #include <fstream>
 #include "json.hpp"
@@ -62,6 +63,10 @@ class Robot : public Entity{
         void updateXP();
         void levelUp();
 
+        void pickUpPowerUp(PowerUpObject* obj);
+        void pickUpPoint(PointObject* obj);
+        void pickUpLifeBoost(PowerUpObject* obj);
+
     public:
         Robot(float start_x, float start_y, std::shared_ptr<SoundManager> soundManager);
         virtual ~Robot();
@@ -86,8 +91,6 @@ class Robot : public Entity{
         void moveAfterCollision(Entity* entity);
         
         void pickUpObject(SuperObject* obj) override;
-        void pickUpPowerUp(PowerUpObject* obj);
-        void pickUpPoint(PointObject* obj);
         void hitByProjectile(Projectile* projectile) override;
         void hitEntity(Entity* entity) override;
         

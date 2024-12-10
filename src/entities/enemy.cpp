@@ -6,6 +6,7 @@ Enemy::Enemy(float start_x, float start_y, std::weak_ptr<SoundManager> soundMana
     this->direction = DOWN;
     this->spriteCounter = 0;
     this->dyingCounter = 0;
+    this->damagedCounter = 0;
     this->spriteNumber = 1;
     this->movementSpeed = 0.f;
     this->velocity = sf::Vector2f(0.f, this->movementSpeed);
@@ -88,6 +89,7 @@ void Enemy::initShape()
     this->sprite.setTexture(this->right_texture1);
 
     this->sprite.setScale(2, 2);
+    this->realColor = this->sprite.getColor();
 
 
 
@@ -108,6 +110,7 @@ void Enemy::initAttackTexture()
 {
     if(!this->lightAttackTextureUp.loadFromFile(this->lightAttackUpPath))
     {
+        std::cout << "Path: " << this->lightAttackUpPath << std::endl;
         throw GameException("Could not load Red Projectile Texture");
     }
     
@@ -295,10 +298,8 @@ Projectile* Enemy::shootToRobot(Robot* robot)
 
     chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
 
-    
-        
 
-    if(this->dying == false && this->alive == true)
+    if(this->dying == false && this->alive == true || this->isDamaged == false)
     {
         if(firstShot)
         {
@@ -353,12 +354,8 @@ void Enemy::hitByProjectile(Projectile* projectile)
         this->life_points -= projectile->damage;
     }
 
-    //Check if Sound Managers still exists
-    if (auto sp = this->soundManager.lock()) {
-        sp->playSound("hit");
-    } else {
-        // sp no longer exists!
-    }
+    this->soundEffect("hit");
+    this->isDamaged = true;
 }
 
 /**
@@ -369,15 +366,29 @@ bool Enemy::isDead()
     return this->life_points <= 0;
 }
 
+/**
+ *      @return Enemy Type
+ */
+EnemyType Enemy::getEnemyType()
+{
+    return this->enemyType;
+}
+
 
 void Enemy::update(Robot* robot)
 {
+    //if enemy is dying perform dying animation
     if(this->dying == true)
     {
         this->dyingAnimation();
         this->setVelocity(0.f,0.f);
     }
     else{
+        //If the enemy is damaged perform little animation
+        if(this->isDamaged == true)
+        {
+            this->damagedAnimation();
+        }
         this->updateMovement(robot);
     }
 }

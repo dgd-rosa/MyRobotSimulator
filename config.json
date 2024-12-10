@@ -16,7 +16,7 @@
         "speed": 5.0,
         "xp_for_next_level": 200,
         "xp_multiplier": 2,
-        "lifePoints": 10,
+        "max_life_points": 6,
         "ligthAttackCooldown": 500,
         "lightAttackSpeed": 8.0,
         "lightAttackDamage": 2,
@@ -44,20 +44,141 @@
         "lightAttackSpeed": 7.0,
         "lightAttackDamage": 1,
 
-        "right1Path": "images/enemy/right1.png",
-        "right2Path": "images/enemy/right2.png",
-        "left1Path": "images/enemy/left1.png",
-        "left2Path": "images/enemy/left2.png",
+        "right1Path": "images/enemy/weak/right1.png",
+        "right2Path": "images/enemy/weak/right2.png",
+        "left1Path": "images/enemy/weak/left1.png",
+        "left2Path": "images/enemy/weak/left2.png",
         "lightAttackUpPath": "images/bullets/enemy_bullets/red_bullet_up.png",
         "lightAttackDownPath": "images/bullets/enemy_bullets/red_bullet_down.png",
         "lightAttackLeftPath": "images/bullets/enemy_bullets/red_bullet_left.png",
-        "lightAttackRightPath": "images/bullets/enemy_bullets/red_bullet_right.png"
+        "lightAttackRightPath": "images/bullets/enemy_bullets/red_bullet_right.png",
 
+        "Weak":{
+            "lifePoints": 4,
+            "speed": 0.5,
+            "ligthAttackCooldown": 4000,
+            "lightAttackSpeed": 3.0,
+            "lightAttackDamage": 1,
+            "directionResetCooldown": 3000,
+
+            "right1Path": "images/enemy/weak/right1.png",
+            "right2Path": "images/enemy/weak/right2.png",
+            "left1Path": "images/enemy/weak/left1.png",
+            "left2Path": "images/enemy/weak/left2.png",
+            "lightAttackUpPath": "images/bullets/enemy_bullets/red_bullet_up.png",
+            "lightAttackDownPath": "images/bullets/enemy_bullets/red_bullet_down.png",
+            "lightAttackLeftPath": "images/bullets/enemy_bullets/red_bullet_left.png",
+            "lightAttackRightPath": "images/bullets/enemy_bullets/red_bullet_right.png"
+        },
+
+        "Medium":{
+            "lifePoints": 6,
+            "speed": 0.7,
+            "ligthAttackCooldown": 4000,
+            "lightAttackSpeed": 4.0,
+            "lightAttackDamage": 1,
+            "directionResetCooldown": 3000,
+
+            "right1Path": "images/enemy/medium/medium_enemy_right1.png",
+            "right2Path": "images/enemy/medium/medium_enemy_right2.png",
+            "left1Path": "images/enemy/medium/medium_enemy_left1.png",
+            "left2Path": "images/enemy/medium/medium_enemy_left2.png",
+            "lightAttackUpPath": "images/bullets/enemy_bullets/red_bullet_up.png",
+            "lightAttackDownPath": "images/bullets/enemy_bullets/red_bullet_down.png",
+            "lightAttackLeftPath": "images/bullets/enemy_bullets/red_bullet_left.png",
+            "lightAttackRightPath": "images/bullets/enemy_bullets/red_bullet_right.png"
+        },
+
+        "Strong":{
+            "lifePoints": 10,
+            "speed": 1.0,
+            "ligthAttackCooldown": 2000,
+            "lightAttackSpeed": 7.0,
+            "lightAttackDamage": 2,
+            "directionResetCooldown": 3000,
+
+            "right1Path": "images/enemy/strong/StrongEnemy_right1.png",
+            "right2Path": "images/enemy/strong/StrongEnemy_right2.png",
+            "left1Path": "images/enemy/strong/StrongEnemy_left1.png",
+            "left2Path": "images/enemy/strong/StrongEnemy_left2.png",
+            "lightAttackUpPath": "images/bullets/enemy_bullets/red_bullet_up.png",
+            "lightAttackDownPath": "images/bullets/enemy_bullets/red_bullet_down.png",
+            "lightAttackLeftPath": "images/bullets/enemy_bullets/red_bullet_left.png",
+            "lightAttackRightPath": "images/bullets/enemy_bullets/red_bullet_right.png"
+        }
     },
 
     "EnemyManager":{
         "enemySpawnCooldown": 10000,
-        "maxNumberEnemy": 10
+        "difficultIncreaseTime": 40000,
+        "maxNumberEnemy": 10,
+        "probabilityLoot": 60,
+        "weak_probability": 100,
+        "medium_probability": 0,
+        "strong_probability": 0,
+
+        "Difficulty":{
+            "1":{
+                "weak_probability": 100,
+                "medium_probability": 0,
+                "strong_probability": 0,
+                "enemySpawnCooldown": 10000
+            },
+            "2":{
+                "weak_probability": 75,
+                "medium_probability": 25,
+                "strong_probability": 0,
+                "enemySpawnCooldown": 10000
+            },
+            "3":{
+                "weak_probability": 50,
+                "medium_probability": 50,
+                "strong_probability": 0,
+                "enemySpawnCooldown": 8000
+            },
+            "4":{
+                "weak_probability": 25,
+                "medium_probability": 75,
+                "strong_probability": 0,
+                "enemySpawnCooldown": 7500
+            },
+            "5":{
+                "weak_probability": 15,
+                "medium_probability": 80,
+                "strong_probability": 5,
+                "enemySpawnCooldown": 7000
+            },
+            "6":{
+                "weak_probability": 10,
+                "medium_probability": 75,
+                "strong_probability": 15,
+                "enemySpawnCooldown": 7000
+            },
+            "7":{
+                "weak_probability": 10,
+                "medium_probability": 75,
+                "strong_probability": 15,
+                "enemySpawnCooldown": 6000
+            },
+            "8":{
+                "weak_probability": 10,
+                "medium_probability": 65,
+                "strong_probability": 25,
+                "enemySpawnCooldown": 5000
+            },
+            "9":{
+                "weak_probability": 10,
+                "medium_probability": 60,
+                "strong_probability": 30,
+                "enemySpawnCooldown": 4000
+            },
+            "10":{
+                "weak_probability": 10,
+                "medium_probability": 40,
+                "strong_probability": 50,
+                "enemySpawnCooldown": 3000
+            }
+        }
     },
 
     "ObjectSpawner":{
@@ -69,7 +190,7 @@
 
     "SoundManager":{
         "GameMusicPath": "sound/Music/gameMusic.wav",
-        "MusicVolume": 50.0,
+        "MusicVolume": 10.0,
         "HitSoundPath": "sound/SoundEffects/hitmonster.wav",
         "LightAttackSoundPath": "sound/SoundEffects/light_attack.wav",
         "PickBoostSoundPath": "sound/SoundEffects/pickBoost.wav",
@@ -84,5 +205,8 @@
         },
         "Screw": "images/objects/screw.png",
         "BatteryBoost": "images/objects/battery_boost.png"
+    },
+    "Scoreboard":{
+        "scoresFile": "scores/scores.csv"
     }
 }

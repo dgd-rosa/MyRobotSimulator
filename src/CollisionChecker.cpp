@@ -7,6 +7,10 @@ CollisionChecker::CollisionChecker(GamePanelInfo* gpInfo, TileManager* tileManag
     this->objSpawner = objSpawner;
 }
 
+
+/**
+ *      Method to check collision with Tiles For Entities
+ */
 bool CollisionChecker::checkTile(Entity* entity)
 {
     if(entity == nullptr)
@@ -108,7 +112,112 @@ bool CollisionChecker::checkTile(Entity* entity)
     }
 
     return false;
+}
 
+/**
+ *      Method to check collision with Tiles For Projectiles
+ */
+bool CollisionChecker::checkTile(Projectile* projectile)
+{
+    if(projectile == nullptr)
+        throw GameException("Checktile: Entity pointer is null");
+        
+    sf::FloatRect entityCollisionBounds = projectile->getCollisionBounds();
+
+    int entityLeftWorldX = entityCollisionBounds.left;
+    int entityRightWorldX = entityCollisionBounds.left + entityCollisionBounds.width;
+    int entityTopWorldY = entityCollisionBounds.top;
+    int entityBottomWorldY = entityCollisionBounds.top + entityCollisionBounds.height;
+
+    /*
+    * This entity values are the values of the indexes of the map grid
+    of the 4 tiles that 
+    */
+    //Find Column
+    int entityLeftCol = entityLeftWorldX/this->gpInfo->tileSize;
+    int entityRightCol = entityRightWorldX/this->gpInfo->tileSize;
+    
+    //Find Rows
+    int entityTopRow = entityTopWorldY/this->gpInfo->tileSize;
+    int entityBottomRow = entityBottomWorldY/this->gpInfo->tileSize;
+
+
+    std::vector<std::vector<int>> map = this->tileManager->getMap();
+    std::vector<GameTile*> tiles = this->tileManager->getTiles();
+
+    int velocity = projectile->movement_speed;
+
+
+    switch (projectile->getDirection())
+    {
+        case UP:
+        {
+            entityTopRow = (entityTopWorldY + velocity)/this->gpInfo->tileSize;
+            
+            if(entityTopRow < 0 ||
+                entityBottomRow >= this->gpInfo->maxScreenRow ||
+                entityLeftCol < 0 ||
+                entityRightCol >= this->gpInfo->maxScreenCol)
+                {
+                    std::cout << "Out of the window" << std::endl;
+                    return false;
+                }
+
+            return this->checkTileLine(entityLeftCol, entityRightCol, entityTopRow, true);
+
+            break;
+        }
+        case DOWN:
+        {
+            entityBottomRow = (entityBottomWorldY + velocity)/this->gpInfo->tileSize;
+
+            if(entityTopRow < 0 ||
+                entityBottomRow >= this->gpInfo->maxScreenRow ||
+                entityLeftCol < 0 ||
+                entityRightCol >= this->gpInfo->maxScreenCol)
+            {
+                std::cout << "Out of the window" << std::endl;
+                return false;
+            }
+
+            return this->checkTileLine(entityLeftCol, entityRightCol, entityBottomRow, true);
+            break;
+        }
+        case LEFT:
+        {
+            entityLeftCol = (entityLeftWorldX + velocity)/this->gpInfo->tileSize;
+
+            if(entityTopRow < 0 ||
+                entityBottomRow >= this->gpInfo->maxScreenRow ||
+                entityLeftCol < 0 ||
+                entityRightCol >= this->gpInfo->maxScreenCol)
+            {
+                std::cout << "Out of the window" << std::endl;
+                return false;
+            }
+            return this->checkTileLine(entityTopRow, entityBottomRow, entityLeftCol, false);
+            break;
+        }
+        case RIGHT:
+        {
+            entityRightCol = (entityRightWorldX + velocity)/this->gpInfo->tileSize;
+            
+            if(entityTopRow < 0 ||
+                entityBottomRow >= this->gpInfo->maxScreenRow ||
+                entityLeftCol < 0 ||
+                entityRightCol >= this->gpInfo->maxScreenCol)
+            {
+                std::cout << "Out of the window" << std::endl;
+                return false;
+            }
+            return this->checkTileLine(entityTopRow, entityBottomRow, entityRightCol, false);
+            break;
+        }
+        default:
+            break;
+    }
+
+    return false;
 }
 
 /**
@@ -264,8 +373,12 @@ void CollisionChecker::checkRobotProjectiles(Entity* entity, unique_ptr<Projecti
     {
         if(proj->getBounds().intersects(entity->getBounds()))
         {
+            //If entity is damaged, then there is a time where its invincible
+            if(!entity->isDamaged)
+            {
+                entity->hitByProjectile(proj);
+            }
             
-            entity->hitByProjectile(proj);
 
             //Delete object from List
             projectileManager->removeRobotProjectile(counter);
@@ -285,8 +398,10 @@ void CollisionChecker::checkRobotHitByProjectiles(Entity* entity, unique_ptr<Pro
     {
         if(proj->getBounds().intersects(entity->getBounds()))
         {
-            entity->hitByProjectile(proj);
-
+            if(entity->isDamaged == false)
+            {
+                entity->hitByProjectile(proj);
+            }
             //Delete object from List
             projectileManager->removeEnemyProjectile(counter);
             
@@ -312,4 +427,27 @@ void CollisionChecker::checkEnemyListObstacles(unique_ptr<EnemyManager> &enemyMa
     }
 }
 
+void CollisionChecker::checkProjectilesObstacles(unique_ptr<ProjectileManager> &projectileManager)
+{
+    int counter = 0;
+    for(Projectile* proj : projectileManager->getEnemyProjectiles())
+    {
+        if(this->checkTile(proj))
+        {
+            projectileManager->removeEnemyProjectile(counter);
+            --counter;
+        }
+        ++counter;
+    }
 
+    counter = 0;
+    for(Projectile* proj : projectileManager->getRobotProjectiles())
+    {
+        if(this->checkTile(proj))
+        {
+            projectileManager->removeRobotProjectile(counter);
+            --counter;
+        }
+        ++counter;
+    }
+}

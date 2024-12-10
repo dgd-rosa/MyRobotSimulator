@@ -1,5 +1,6 @@
 #include "OBJ_BatteryBoost.hpp"
 #include "OBJ_Screw.hpp"
+#include "OBJ_Heart.hpp"
 #include "tiles/tileManager.hpp"
 #include "entities/entity.hpp"
 
@@ -16,9 +17,12 @@ using namespace std;
 class ObjectSpawner
 {
     private:
+        TileManager* tilesManager;
         void initConfigFile();
+    
     public:
-        ObjectSpawner();
+        ObjectSpawner(TileManager* tilesManager);
+        ~ObjectSpawner() = default;
 
         int max_number_powerUps = 1;
         int current_powerUps = 0;
@@ -39,8 +43,10 @@ class ObjectSpawner
         void removeObject(int idx, bool powerUp);
         void addObject(SuperObject* object, bool powerUp);
         bool checkObjectIntersection(SuperObject* object);
-        void spawnObject(SuperObject* ,TileManager*, Entity*, bool);
+        void spawnObject(SuperObject* , Entity*, bool);
         PowerUpObject* generateRandomPowerUp();
+        void spawnRandomPowerUp(int object_x, int object_y);
+
 
         void update(TileManager* tilesManager, Entity* robot);
         void render(sf::RenderTarget* target);

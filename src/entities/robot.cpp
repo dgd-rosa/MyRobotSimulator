@@ -10,7 +10,6 @@ void Robot::initVariables()
     this->velocity = sf::Vector2f(0.f, 0.f);
 
     this->points = 0;
-    this->life_points = 6;
     this->battery = new Battery();
 
     this->point_multiplier = 1;
@@ -37,7 +36,8 @@ void Robot::initConfigFile()
     }
 
     this->movementSpeed = config["Robot"]["speed"];
-    this->life_points = config["Robot"]["lifePoints"];
+    this->max_life = config["Robot"]["max_life_points"];
+    this->life_points = this->max_life;
     this->xp_for_next_level = config["Robot"]["xp_for_next_level"];
     this->xp_multiplier = config["Robot"]["xp_multiplier"];
 
@@ -125,8 +125,8 @@ void Robot::initShape()
     this->up_texture2.setSmooth(false);
 
     this->sprite.setTexture(this->right_texture1);
-
     this->sprite.setScale(2.5, 2.5);
+    this->realColor = this->sprite.getColor();
 
 
 
@@ -338,19 +338,9 @@ void Robot::pickUpObject(SuperObject* obj)
     switch (obj->type)
     {
     case POWER_UP:
-        //Check if Sound Managers still exists (robot only has a weak ptr pointing to sound manager)
-        if (auto real_sound_manager = this->soundManager.lock()) {
-            real_sound_manager->playSound("pick_boost");
-        }
-        
         this->pickUpPowerUp(dynamic_cast<PowerUpObject*>(obj));
         break;
     case POINTS:
-        
-        //Check if Sound Managers still exists (robot only has a weak ptr pointing to sound manager)
-        if (auto real_sound_manager = this->soundManager.lock()) {
-            real_sound_manager->playSound("pick_screw");
-        }
         this->pickUpPoint(dynamic_cast<PointObject*>(obj));
         break;
     default:
@@ -364,7 +354,12 @@ void Robot::pickUpPowerUp(PowerUpObject* obj)
     switch (obj->powerUp_type)
     {
     case BATTERY_BOOST:
+        this->soundEffect("pick_boost");
         this->battery->boost(30);
+        break;
+    case LIFE_BOOST:
+        // Get life points
+        this->pickUpLifeBoost(obj);
         break;
     
     default:
@@ -372,10 +367,22 @@ void Robot::pickUpPowerUp(PowerUpObject* obj)
     }
 }
 
+void Robot::pickUpLifeBoost(PowerUpObject* heart)
+{
+    this->life_points += heart->getLifeBoost();
+    if(this->life_points > this->max_life)
+    {
+        this->life_points = this->max_life;
+    }
+    this->soundEffect("pick_boost");
+}
+
 void Robot::pickUpPoint(PointObject* obj)
 {
     this->points += this->point_multiplier * obj->points;
     this->current_xp += this->point_multiplier * obj->points;
+
+    this->soundEffect("pick_screw");
 }
 
 void Robot::updateXP()
@@ -408,10 +415,9 @@ void Robot::hitByProjectile(Projectile* projectile)
     {
         this->life_points -= projectile->damage;
     }
-    //Check if Sound Managers still exists (robot only has a weak ptr pointing to sound manager)
-    if (auto real_sound_manager = this->soundManager.lock()) {
-        real_sound_manager->playSound("hit");
-    }
+    
+    this->isDamaged = true;
+    this->soundEffect("hit");
 }
 
 
@@ -420,12 +426,18 @@ void Robot::hitEntity(Entity* entity)
     if(entity == nullptr)
         return;
 
+    //only take life points if the robot did not hit one enemy lately
+    if(!this->isDamaged)
+    {
+        //take 1 life point if you hit an enemy
+        this->life_points -= 1;
+    }
+    
+
     this->moveAfterCollision(entity);
 
-    if(auto real_sound_manager = this->soundManager.lock())
-    {
-        real_sound_manager->playSound("hit");
-    }
+    this->isDamaged = true;
+    this->soundEffect("hit");
 }
 
 Projectile* Robot::lightAttack()
@@ -441,9 +453,7 @@ Projectile* Robot::lightAttack()
     if(now - this->lastTimeShot > this->light_attack_cooldown)
     {
         //Check if Sound Managers still exists (robot only has a weak ptr pointing to sound manager)
-        if (auto real_sound_manager = this->soundManager.lock()) {
-            real_sound_manager->playSound("light_attack");
-        }
+        this->soundEffect("light_attack");
         this->lastTimeShot = now;
         switch (this->face_direction)
         {
@@ -527,6 +537,10 @@ void Robot::render(sf::RenderTarget* target){
             break;
     }
 
+    if(this->isDamaged)
+    {
+        this->damagedAnimation();
+    }
 
     target->draw(this->sprite);
 

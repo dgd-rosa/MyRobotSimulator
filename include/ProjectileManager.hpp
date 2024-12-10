@@ -19,6 +19,8 @@ class ProjectileManager
         void removeRobotProjectile(unsigned int idx);
         void removeEnemyProjectile(unsigned int idx);
 
+
+
         //Gets
         std::vector<Projectile*>& getRobotProjectiles();
         std::vector<Projectile*>& getEnemyProjectiles();

@@ -20,7 +20,7 @@ PointsHeader::PointsHeader()
     this->pointsText.setFont(font);
     this->pointsText.setCharacterSize(26);
     this->pointsText.setFillColor(sf::Color::White);
-    this->pointsText.setPosition(350 , 24);
+    this->pointsText.setPosition(400 , 24);
     this->pointsText.setOutlineColor(sf::Color::Black);
     this->pointsText.setString(std::to_string(points) + " X");
 
@@ -60,7 +60,7 @@ LevelHeader::LevelHeader()
     this->pointsText.setFont(font);
     this->pointsText.setCharacterSize(26);
     this->pointsText.setFillColor(sf::Color::White);
-    this->pointsText.setPosition(170, 24);
+    this->pointsText.setPosition(200, 24);
     this->pointsText.setOutlineColor(sf::Color::Black);
     this->pointsText.setString("Level: " + std::to_string(level));
 
@@ -90,6 +90,7 @@ Header::Header(int maxLifePoints, int tileSize)
     for(int i=0; i < nHearts; i++)
     {
         this->hearts.push_back(std::make_unique<OBJ_Heart>());
+        this->hearts[i]->sprite.setScale(3, 3);
     }
 }
 

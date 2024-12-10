@@ -18,6 +18,7 @@ enum ObjectType
 enum PowerUpType
 {
     BATTERY_BOOST,
+    LIFE_BOOST,
     LAST
 };
 
@@ -49,12 +50,16 @@ class SuperObject
 
 class PowerUpObject : public SuperObject
 {
+    protected:
+        int life_boost = 0;
     public:
         PowerUpType powerUp_type;
         PowerUpObject(){
             this->type = POWER_UP;
         }
         virtual ~PowerUpObject() = default;
+
+        int getLifeBoost(){return life_boost;};
 };
 
 class PointObject : public SuperObject

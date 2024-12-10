@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "exceptions/GameException.hpp"
+#include "scoreboard.hpp"
 
 #ifndef MENU_HPP
 #define MENU_HPP
@@ -10,6 +11,12 @@ enum MenuOptions
     START_GAME=0,
     SCOREBOARD=1,
     EXIT=2
+};
+
+enum MenuState
+{
+    MAIN_MENU = 0,
+    SCOREBOARD_MENU = 1
 };
 
 class Menu
@@ -28,7 +35,10 @@ class Menu
         sf::Time cooldown = sf::milliseconds(200);
         sf::Clock clock;
 
-        Menu();
+        MenuState currentMenuState = MAIN_MENU;
+        std::unique_ptr<Scoreboard> scoreboard;
+
+        Menu(int screenWidth, int screenHeight);
 
         void navigate();
         bool isEnterPressed();

@@ -18,11 +18,13 @@ class Entity
         float movementSpeed;
         Direction direction;
         unsigned int life_points;
+        unsigned int max_life;
 
         //counter
         unsigned int spriteCounter;
         unsigned int spriteNumber;
         int dyingCounter;
+        int damagedCounter;
 
         
 
@@ -36,6 +38,7 @@ class Entity
         sf::Texture down_texture1;
         sf::Texture down_texture2;
         sf::Sprite sprite;
+        sf::Color realColor;
 
         //Collision Rectangle
         sf::RectangleShape collisionRect;
@@ -43,7 +46,7 @@ class Entity
         bool collisionOn = false;
 
 
-        //counter
+        void soundEffect(std::string effect_name);
 
 
     public:
@@ -51,6 +54,7 @@ class Entity
         bool attacking = false;
         bool alive = true;
         bool dying = false;
+        bool isDamaged = false;
 
         //Constructor
         Entity();
@@ -68,6 +72,7 @@ class Entity
         void setPosition(sf::Vector2f pos);
         void setPosition(float x, float y);
         void setVelocity(const float velocity_x, const float velocity_y);
+        void setDirectionVelocity(Direction direction, float vel);
 
         virtual void update(){};
         virtual void obstacleCollision();
@@ -75,6 +80,7 @@ class Entity
         virtual void hitByProjectile(Projectile* projectile){};
         virtual void hitEntity(Entity* entity){};
         virtual void dyingAnimation(){};
+        virtual void damagedAnimation();
 };
 
 

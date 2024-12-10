@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "scoreboard.hpp"
 #include "menu/menu.hpp"
 #include "sound/sound.hpp"
 #include "json.hpp"
@@ -30,6 +31,7 @@ class GameManager
         std::unique_ptr<Game> game;
         std::unique_ptr<Menu> menu;
         std::shared_ptr<SoundManager> soundManager;
+        std::unique_ptr<Scoreboard> scoreBoard;
         GameState state;
 
         GamePanelInfo* gamePanelInfo;

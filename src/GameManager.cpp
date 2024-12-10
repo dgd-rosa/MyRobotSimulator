@@ -5,15 +5,14 @@ GameManager::GameManager()
 {
     this->gamePanelInfo = new GamePanelInfo();
 
-    this->menu = std::make_unique<Menu>();
-    
     this->soundManager = std::make_shared<SoundManager>();                         
 
     this->game = std::make_unique<Game>(this->gamePanelInfo, this->soundManager);
 
+    this->menu = std::make_unique<Menu>(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight);
+
     this->state = MENU;
 
-    
     this->window = nullptr;
 
     this->initWindow();
@@ -49,7 +48,7 @@ void GameManager::pollEvents()
                     if(this->state == GAME)
                     {
                         this->state = MENU;
-                        this->menu = std::make_unique<Menu>();
+                        this->menu = std::make_unique<Menu>(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight);
                         this->soundManager->stopMusic();
                     }
                 }
@@ -67,6 +66,10 @@ void GameManager::pollEvents()
                         }
                         else if(this->menu->menuOption == EXIT)
                             this->window->close();
+                        else if(this->menu->menuOption == SCOREBOARD)
+                        {
+                            this->menu->currentMenuState = SCOREBOARD_MENU;
+                        }
                     }
                 }
 
@@ -75,6 +78,12 @@ void GameManager::pollEvents()
                     if(this->state == GAME)
                     {
                         this->game->handleEnterPressed();   
+                    }
+                    if(this->game->getGameMode() == GAME_OVER)
+                    {
+                        this->state = MENU;
+                        this->menu->scoreboard->saveScore((this->game->getScore()));
+                        this->soundManager->stopMusic();
                     }
                 }
                 break;

@@ -19,6 +19,7 @@ class CollisionChecker
         CollisionChecker(GamePanelInfo* gpInfo, TileManager* tileManager, ObjectSpawner* objSpawner);
 
         bool checkTile(Entity* entity);
+        bool checkTile(Projectile* object);
         void checkObstacles(Entity* entity);
         void checkEntities(Entity* entity1, Entity* entity2);
         bool checkTileLine(int low_idx, int high_idx, int stable_idx, bool horizontal);
@@ -32,6 +33,7 @@ class CollisionChecker
         void checkRobotHitEnemies(Entity* entity, std::vector<Enemy*> enemies);
         void checkEnemyListHitByProjectiles(unique_ptr<EnemyManager> &enemyManager, unique_ptr<ProjectileManager> &projectileManager);
         void checkEnemyListObstacles(unique_ptr<EnemyManager> &enemyManager);
+        void checkProjectilesObstacles(unique_ptr<ProjectileManager> &projectileManager);
 };  
 
 #endif

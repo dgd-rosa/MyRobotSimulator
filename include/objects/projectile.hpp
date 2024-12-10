@@ -13,6 +13,10 @@ class Projectile : public SuperObject
         sf::Texture texture;
         sf::Sprite sprite;
 
+        //Collision Rectangle
+        sf::RectangleShape collisionRect;
+        int left_rect, top_rect, width_rect, height_rect = 0;
+
         Direction direction;
         float movement_speed;
         unsigned int damage;
@@ -23,7 +27,9 @@ class Projectile : public SuperObject
 
 
         const sf::FloatRect getBounds() const;
+        const sf::FloatRect getCollisionBounds() const;
         const sf::Vector2f & getPos() const;
+        Direction getDirection();
 
         
         void update();

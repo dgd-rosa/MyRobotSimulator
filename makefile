@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler Flags
-CXXFLAGS = -g -std=c++14 -Wall -Iinclude/
+CXXFLAGS = -g -std=c++17 -Wall -Iinclude/
 LDFLAGS = -lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lstdc++
 
 

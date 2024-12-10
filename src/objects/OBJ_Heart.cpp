@@ -1,8 +1,9 @@
 #include "objects/OBJ_Heart.hpp"
 
-OBJ_Heart::OBJ_Heart()
+OBJ_Heart::OBJ_Heart(int life_boost)
 {
     try{
+        this->powerUp_type = LIFE_BOOST;
         // Open the JSON file
         std::ifstream file("config.json");
         if (!file.is_open()) {
@@ -19,6 +20,8 @@ OBJ_Heart::OBJ_Heart()
         this->texture3_path = config["Objects"]["Heart"]["full_path"];
 
         this->initShape();
+
+        this->life_boost = life_boost;
 
     }catch(std::exception& e)
     {
@@ -71,4 +74,9 @@ void OBJ_Heart::setHeartTexture(std::string string)
     {
         // Do Nothing
     }
+}
+
+int OBJ_Heart::getLifeBoost()
+{
+    return this->life_boost;
 }

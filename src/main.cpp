@@ -7,6 +7,8 @@ int main(){
     
 
     try{
+        srand(time(0));
+        
         GameManager gameManager;
         // Main loop
         while (gameManager.running()) {

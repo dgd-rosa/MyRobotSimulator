@@ -42,15 +42,18 @@ class Game
         sf::RectangleShape pauseBackground;
         sf::Font font;
         sf::Text pauseText;
+        sf::Text gameOverText;
 
+        //score
+        chrono::time_point<chrono::steady_clock> initTime;
+        chrono::time_point<chrono::steady_clock> finishTime;
 
         //Mouse positions
         sf::Vector2i mousePosWindow;
 
-
         void initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager>);
         void initRobot();
-        void initPauseText();
+        void initText();
 
     public:
         GamePanelInfo* gamePanelInfo;
@@ -62,6 +65,8 @@ class Game
         void pauseGame();
         void resumeGame();
         void handleEnterPressed();
+        Mode getGameMode() {return mode;}
+        Score getScore();
         
         void shootProjectiles();
         void updateCollisions();

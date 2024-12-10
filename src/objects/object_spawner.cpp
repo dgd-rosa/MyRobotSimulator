@@ -1,7 +1,8 @@
 #include "objects/object_spawner.hpp"
 
-ObjectSpawner::ObjectSpawner()
+ObjectSpawner::ObjectSpawner(TileManager* tilesManager)
 {
+    this->tilesManager = tilesManager;
     this->initConfigFile();
 }
 
@@ -51,7 +52,7 @@ void ObjectSpawner::update(TileManager* tilesManager, Entity* robot)
         if(this->points.size() < this->max_number_screws)
         {
             //Generate Random Power Up -> chooses a random power up from the enum
-            this->spawnObject(new OBJ_Screw(), tilesManager, robot, false);
+            this->spawnObject(new OBJ_Screw(), robot, false);
         }
     }
     
@@ -63,11 +64,9 @@ void ObjectSpawner::update(TileManager* tilesManager, Entity* robot)
         if(this->powerUps.size() < this->max_number_powerUps)
         {
             //Generate Random Power Up -> chooses a random power up from the enum
-            this->spawnObject(this->generateRandomPowerUp(), tilesManager, robot, true);
+            this->spawnObject(this->generateRandomPowerUp(), robot, true);
         }
     }
-
-    
 }
 
 void ObjectSpawner::addObject(SuperObject* object, bool powerUp)
@@ -108,13 +107,54 @@ PowerUpObject* ObjectSpawner::generateRandomPowerUp()
             return new OBJ_BatteryBoost();
             break;
         
+        case LIFE_BOOST:{
+            OBJ_Heart* heart = new OBJ_Heart();
+            heart->setHeartTexture("full");
+            return heart;
+            break;
+        }
         default:
             return new OBJ_BatteryBoost();
             break;
     }
 }
 
-void ObjectSpawner::spawnObject(SuperObject* object, TileManager* tilesManager, Entity* robot, bool is_powerUp)
+void ObjectSpawner::spawnRandomPowerUp(int pos_x, int pos_y)
+{
+    PowerUpObject* new_obj = this->generateRandomPowerUp();
+    new_obj->setPosition(sf::Vector2f(pos_x, pos_y));
+
+    //Get Top Left Corner of the sprite
+    int col_idx = pos_x / tilesManager->gpInfo->tileSize;
+    int width_idx = pos_y / tilesManager->gpInfo->tileSize;
+
+    //If it is in a wall
+    int tileNumber = tilesManager->getMap()[width_idx][col_idx];
+    if(tilesManager->getTiles()[tileNumber]->collision)
+    {
+        return;
+    }
+
+    for(auto obj : this->powerUps)
+    {
+        if(obj->getBounds().intersects(new_obj->getBounds()))
+        {
+            return;
+        }
+    }
+
+    for(auto obj : this->points)
+    {
+        if(obj->getBounds().intersects(new_obj->getBounds()))
+        {
+            return;
+        }
+    }
+
+    this->addObject(new_obj, true);
+}
+
+void ObjectSpawner::spawnObject(SuperObject* object, Entity* robot, bool is_powerUp)
 {
 
     if(object == nullptr || tilesManager == nullptr || robot == nullptr)

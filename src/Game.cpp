@@ -15,9 +15,9 @@ void Game::initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> so
 
     this->soundManager = soundManager;
     this->enemyManager = std::make_unique<EnemyManager>(soundManager);
-    this->enemyManager->addEnemy(new Enemy(120.f, 460.f, this->soundManager));
+    this->enemyManager->addEnemy(new EnemyMedium(120.f, 460.f, this->soundManager));
     
-    this->objectSpawner = new ObjectSpawner();
+    this->objectSpawner = new ObjectSpawner(this->tileManager);
     
     this->collisionChecker = new CollisionChecker(this->gamePanelInfo, this->tileManager, this->objectSpawner);
     
@@ -29,7 +29,7 @@ void Game::initRobot(){
     this->robot = Robot(200, 200, this->soundManager);
 }
 
-void Game::initPauseText()
+void Game::initText()
 {
 
     if(!this->font.loadFromFile("fonts/yoster.ttf"))
@@ -50,6 +50,18 @@ void Game::initPauseText()
     this->pauseText.setOrigin(pauseTextBounds.width / 2, pauseTextBounds.height / 2);
 
     this->pauseText.setPosition(screenWidth / 2 , screenHeight / 2);
+
+
+    //GameOver Text
+    this->gameOverText.setFont(font);
+    this->gameOverText.setCharacterSize(50);
+    this->gameOverText.setFillColor(sf::Color::Yellow);
+    this->gameOverText.setOutlineColor(sf::Color::Black);
+    this->gameOverText.setString("Game Over");
+
+    auto gameOverTextBounds = this->gameOverText.getLocalBounds();
+    this->gameOverText.setOrigin(gameOverTextBounds.width / 2, gameOverTextBounds.height / 2);
+    this->gameOverText.setPosition(screenWidth / 2 , screenHeight / 2);
     
     
 
@@ -65,18 +77,17 @@ Game::Game(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> soundManager)
 {
     this->initVariables(gpInfo, soundManager);
     this->initRobot();
-    this->initPauseText();
+    this->initText();
+
+    this->initTime = chrono::steady_clock::now();
 }
 
 Game::~Game()
 {
-    std::cout << "Game Destructor" << std::endl;
-    
     this->enemyManager.reset();
     this->header.reset();
     this->projectileManager.reset();
     
-    std::cout << "Sound Manager Use count: "<< this->soundManager.use_count() << std::endl;
     this->soundManager.reset();
     
     
@@ -131,6 +142,9 @@ void Game::updateCollisions()
     //enemies
     this->collisionChecker->checkEnemyListObstacles(this->enemyManager);
 
+    //Projectiles
+    this->collisionChecker->checkProjectilesObstacles(this->projectileManager);
+
 
     //Check For objects
     //Robot
@@ -144,7 +158,7 @@ void Game::updateCollisions()
 
 void Game::checkGameOver()
 {
-    if(this->robot.getLifePoints() <= 0 || this->robot.getBatteryValue() <= 0)
+    if(this->robot.getLifePoints() <= 0)
     {
         //Game Over
         std::cout << "Game OVer !!!!!!!1" << std::endl;
@@ -175,13 +189,24 @@ void Game::handleEnterPressed()
     }
 }
 
+Score Game::getScore()
+{
+    Score score;
+    score.level = this->robot.getLevel();
+    score.score = this->robot.getPoints();
+
+    this->finishTime = chrono::steady_clock::now();
+    auto interval = chrono::duration_cast<chrono::seconds>(this->initTime - this->finishTime);
+    score.time = interval.count();
+
+    return score;
+}
 
 void Game::shootProjectiles()
 {
     this->projectileManager->addRobotProjectile(this->robot.shoot());
     
     this->projectileManager->addEnemyListProjectile(this->enemyManager->shootEnemyListToRobot(&this->robot));
-    
 }
 
 void Game::update(){
@@ -190,7 +215,7 @@ void Game::update(){
     {   
 
         this->robot.updateInput();
-        this->enemyManager->updateEnemies(&this->robot, this->tileManager);
+        this->enemyManager->updateEnemies(&this->robot, this->objectSpawner, this->tileManager);
 
         this->shootProjectiles();
 
@@ -211,12 +236,15 @@ void Game::update(){
 
         this->updateWindowCollision();
 
-        //this->checkGameOver();
+        this->checkGameOver();
     }
 
     if(this->mode == GAME_OVER)
     {
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+        {
 
+        }
     }
 }
 
@@ -239,6 +267,11 @@ void Game::render(sf::RenderTarget* target){
     {
         target->draw(this->pauseBackground);
         target->draw(this->pauseText);
+    }
+    else if(this->mode == GAME_OVER)
+    {
+        target->draw(this->pauseBackground);
+        target->draw(this->gameOverText);
     }
 }
 
