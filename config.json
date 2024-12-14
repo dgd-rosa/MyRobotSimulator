@@ -14,7 +14,7 @@
 
     "Robot":{
         "speed": 5.0,
-        "xp_for_next_level": 200,
+        "xp_for_next_level": 100,
         "xp_multiplier": 2,
         "max_life_points": 6,
         "ligthAttackCooldown": 500,
@@ -60,6 +60,7 @@
             "lightAttackSpeed": 3.0,
             "lightAttackDamage": 1,
             "directionResetCooldown": 3000,
+            "xp_points": 10,
 
             "right1Path": "images/enemy/weak/right1.png",
             "right2Path": "images/enemy/weak/right2.png",
@@ -77,7 +78,8 @@
             "ligthAttackCooldown": 4000,
             "lightAttackSpeed": 4.0,
             "lightAttackDamage": 1,
-            "directionResetCooldown": 3000,
+            "directionResetCooldown": 2000,
+            "xp_points": 20,
 
             "right1Path": "images/enemy/medium/medium_enemy_right1.png",
             "right2Path": "images/enemy/medium/medium_enemy_right2.png",
@@ -91,11 +93,12 @@
 
         "Strong":{
             "lifePoints": 10,
-            "speed": 1.0,
+            "speed": 2.0,
             "ligthAttackCooldown": 2000,
             "lightAttackSpeed": 7.0,
             "lightAttackDamage": 2,
-            "directionResetCooldown": 3000,
+            "directionResetCooldown": 2000,
+            "xp_points": 50,
 
             "right1Path": "images/enemy/strong/StrongEnemy_right1.png",
             "right2Path": "images/enemy/strong/StrongEnemy_right2.png",
@@ -116,69 +119,9 @@
         "weak_probability": 100,
         "medium_probability": 0,
         "strong_probability": 0,
-
-        "Difficulty":{
-            "1":{
-                "weak_probability": 100,
-                "medium_probability": 0,
-                "strong_probability": 0,
-                "enemySpawnCooldown": 10000
-            },
-            "2":{
-                "weak_probability": 75,
-                "medium_probability": 25,
-                "strong_probability": 0,
-                "enemySpawnCooldown": 10000
-            },
-            "3":{
-                "weak_probability": 50,
-                "medium_probability": 50,
-                "strong_probability": 0,
-                "enemySpawnCooldown": 8000
-            },
-            "4":{
-                "weak_probability": 25,
-                "medium_probability": 75,
-                "strong_probability": 0,
-                "enemySpawnCooldown": 7500
-            },
-            "5":{
-                "weak_probability": 15,
-                "medium_probability": 80,
-                "strong_probability": 5,
-                "enemySpawnCooldown": 7000
-            },
-            "6":{
-                "weak_probability": 10,
-                "medium_probability": 75,
-                "strong_probability": 15,
-                "enemySpawnCooldown": 7000
-            },
-            "7":{
-                "weak_probability": 10,
-                "medium_probability": 75,
-                "strong_probability": 15,
-                "enemySpawnCooldown": 6000
-            },
-            "8":{
-                "weak_probability": 10,
-                "medium_probability": 65,
-                "strong_probability": 25,
-                "enemySpawnCooldown": 5000
-            },
-            "9":{
-                "weak_probability": 10,
-                "medium_probability": 60,
-                "strong_probability": 30,
-                "enemySpawnCooldown": 4000
-            },
-            "10":{
-                "weak_probability": 10,
-                "medium_probability": 40,
-                "strong_probability": 50,
-                "enemySpawnCooldown": 3000
-            }
-        }
+        "max_weak_probability": 100,
+        "max_medium_probability": 50,
+        "max_strong_probability": 40
     },
 
     "ObjectSpawner":{
@@ -191,10 +134,12 @@
     "SoundManager":{
         "GameMusicPath": "sound/Music/gameMusic.wav",
         "MusicVolume": 10.0,
+        "SoundVolume": 10.0,
         "HitSoundPath": "sound/SoundEffects/hitmonster.wav",
         "LightAttackSoundPath": "sound/SoundEffects/light_attack.wav",
         "PickBoostSoundPath": "sound/SoundEffects/pickBoost.wav",
-        "PickScrewSoundPath": "sound/SoundEffects/pickCoin.wav"
+        "PickScrewSoundPath": "sound/SoundEffects/pickCoin.wav",
+        "MenuClickSoundPath": "sound/SoundEffects/menu_click.wav"
     },
     
     "Objects":{
@@ -208,5 +153,13 @@
     },
     "Scoreboard":{
         "scoresFile": "scores/scores.csv"
+    },
+    "UI":{
+        "Font": "fonts/PixeloidSans-Bold.ttf",
+        "Texture": ""
+    },
+    "Fonts":{
+        "Yoster": "fonts/yoster.ttf",
+        "PixeloidSans": "fonts/PixeloidSans-Bold.ttf"
     }
 }

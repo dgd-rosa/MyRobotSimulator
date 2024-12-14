@@ -13,9 +13,13 @@ Enemy::Enemy(float start_x, float start_y, std::weak_ptr<SoundManager> soundMana
 
     this->soundManager = soundManager;
 
+    
+
     this->initConfigFile();
     this->initShape();
     this->initAttackTexture();
+
+    this->healthBar = std::make_unique<HealthBar>(30.f, 6.f, this->max_life);
 }
 
 void Enemy::initConfigFile()
@@ -249,7 +253,6 @@ bool Enemy::isFacingRobot(Robot* robot)
     {
         if(this->facing_direction == RIGHT)
         {
-            chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
             if(robot_pos.x > enemy_pos.x){
             
                 return true;
@@ -257,7 +260,6 @@ bool Enemy::isFacingRobot(Robot* robot)
         }
         else if(this->facing_direction == LEFT)
         {
-            chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
             if(robot_pos.x < enemy_pos.x){
                 return true;
             }
@@ -272,34 +274,31 @@ bool Enemy::isFacingRobot(Robot* robot)
  */
 Projectile* Enemy::createProjectileToShoot()
 {
+    auto enemyBounds = this->getBounds();
+    sf::Vector2f enemyCenter = sf::Vector2f(enemyBounds.left + enemyBounds.width/2, enemyBounds.top + enemyBounds.height/2);
+    
     switch (this->facing_direction)
     {
     case UP:
-        return new Projectile(this->lightAttackTextureUp, this->facing_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, 1);
+        return new Projectile(this->lightAttackTextureUp, this->facing_direction, enemyCenter.x, enemyCenter.y, this->light_attack_speed, 1);
         break;
     case DOWN:
-        return new Projectile(this->lightAttackTextureDown, this->facing_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, 1);
+        return new Projectile(this->lightAttackTextureDown, this->facing_direction, enemyCenter.x, enemyCenter.y, this->light_attack_speed, 1);
         break;
     case LEFT:
-        return new Projectile(this->lightAttackTextureLeft, this->facing_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, 1);
+        return new Projectile(this->lightAttackTextureLeft, this->facing_direction, enemyCenter.x, enemyCenter.y, this->light_attack_speed, 1);
         break;
     case RIGHT:
-        return new Projectile(this->lightAttackTextureRight, this->facing_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, 1);
+        return new Projectile(this->lightAttackTextureRight, this->facing_direction, enemyCenter.x, enemyCenter.y, this->light_attack_speed, 1);
         break;
     }
 }
 
 Projectile* Enemy::shootToRobot(Robot* robot)
 {
-    auto robot_pos = robot->getPos();
-    auto enemy_pos = this->getPos();
-
-    sf::FloatRect bounds = this->getBounds();
-
     chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
 
-
-    if(this->dying == false && this->alive == true || this->isDamaged == false)
+    if((this->dying == false && this->alive == true) || this->isDamaged == false)
     {
         if(firstShot)
         {
@@ -391,6 +390,8 @@ void Enemy::update(Robot* robot)
         }
         this->updateMovement(robot);
     }
+    this->healthBar->update(this->life_points, this->getBounds());
+    
 }
 
 void Enemy::render(sf::RenderTarget* target)
@@ -430,7 +431,11 @@ void Enemy::render(sf::RenderTarget* target)
             }
             
             break;
+        default:
+            break;
     }
 
     target->draw(this->sprite);
+
+    this->healthBar->render(target);
 }

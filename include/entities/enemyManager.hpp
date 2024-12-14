@@ -1,17 +1,10 @@
 #include "entities/enemy.hpp"
 #include "tiles/tileManager.hpp"
 #include "objects/object_spawner.hpp"
+#include "menu/text_disappearing.hpp"
 
 #ifndef ENEMY_MANAGER_HPP
 #define ENEMY_MANAGER_HPP
-
-struct Difficulty
-{
-    int spawnEnemyCooldown;
-    int weakEnemyProbability;
-    int mediumEnemyProbability;
-    int strongEnemyProbability;
-};
 
 class EnemyManager
 {
@@ -21,7 +14,6 @@ class EnemyManager
 
         chrono::milliseconds difficultIncreaseTime;
         chrono::time_point<chrono::steady_clock> lastDifficultIncreaseTime = chrono::steady_clock::now();
-        std::vector<std::pair<int, Difficulty>> difficultiesList;
         int current_difficulty = 1;
 
         chrono::milliseconds enemy_spawn_cooldown;
@@ -29,19 +21,24 @@ class EnemyManager
 
         int maxNumberEnemy;
         int probabilty_loot = 50;
+        std::map<EnemyType, float> enemyProbabilitiesMap;
+        std::map<EnemyType, float> enemyMaxProbabilitiesMap;
+        float difficultyFactor = 0;
 
-        float weak_enemy_spawn_probability = 100;
-        float medium_enemy_spawn_probability = 0;
-        float strong_enemy_spawn_probability = 0;
-        std::vector<std::pair<EnemyType, float>> enemyProbabilities;
-
-        std::weak_ptr<SoundManager> soundManager;
         
+        std::weak_ptr<SoundManager> soundManager;
+
+        std::vector<std::unique_ptr<TextDisappear>> text_disappearing_list;
 
         void initConfigFile();
         void initDifficulties(json config);
-        void increaseDifficulty();
-        
+        void adjustDifficulty(float difficultyFactor);
+        void increaseDifficultyFactor(int playerScore);
+
+        //Text disappearing
+        void addTextDisappearing(Enemy* enemy);
+        void removeTextDisappearing(int idx);
+        void updateTextDisappearing();
 
     public:
         EnemyManager(std::shared_ptr<SoundManager>);

@@ -1,4 +1,5 @@
 #include "entities/robot.hpp"
+#include "menu/health_bar.hpp"
 
 #ifndef ENEMY_HPP
 #define ENEMY_HPP
@@ -15,6 +16,7 @@ class Enemy : public Entity
     protected:
         EnemyType enemyType = WEAK;
         Direction facing_direction = RIGHT;
+        unsigned int xp_points;
         chrono::milliseconds directionResetCooldown;
         chrono::time_point<chrono::steady_clock> lastTimeChangeDirections = chrono::steady_clock::now();
 
@@ -46,6 +48,8 @@ class Enemy : public Entity
         std::string lightAttackLeftPath;
         std::string lightAttackRightPath;
 
+        std::unique_ptr<HealthBar> healthBar;
+
         virtual void initShape();
         virtual void initConfigFile();
         void initAttackTexture();
@@ -71,6 +75,7 @@ class Enemy : public Entity
 
         // Gets
         EnemyType getEnemyType();
+        unsigned int getXPPoints(){return this->xp_points;}
         
         
         void update(Robot* robot);

@@ -2,6 +2,7 @@
 #include <iostream>
 #include "exceptions/GameException.hpp"
 #include "scoreboard.hpp"
+#include "sound/sound.hpp"
 
 #ifndef MENU_HPP
 #define MENU_HPP
@@ -21,9 +22,12 @@ enum MenuState
 
 class Menu
 {
+    private:
+        void initConfig();
     public:
         int currentOption = 0;  // Tracks the selected menu option
         MenuOptions menuOption = START_GAME;
+        std::string fontPath;
         sf::Font font;
         sf::Text startText;
         sf::Text exitText;
@@ -38,11 +42,14 @@ class Menu
         MenuState currentMenuState = MAIN_MENU;
         std::unique_ptr<Scoreboard> scoreboard;
 
-        Menu(int screenWidth, int screenHeight);
+        std::weak_ptr<SoundManager> soundManager;
 
-        void navigate();
+        Menu(int screenWidth, int screenHeight, std::shared_ptr<SoundManager> soundManager);
+        ~Menu() = default;
+
+        void handleKeyPressedEvents(sf::Event &event);
+        void navigate(sf::Event &event);
         bool isEnterPressed();
-        void update();
         void render(sf::RenderTarget* target);
 };
 

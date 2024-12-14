@@ -21,6 +21,8 @@ EnemyWeak::EnemyWeak(float start_x, float start_y, std::weak_ptr<SoundManager> s
     this->initAttackTexture();
 
     this->setDirectionVelocity(RIGHT, this->movementSpeed);
+
+    this->healthBar = std::make_unique<HealthBar>(30.f, 6.f, this->max_life);
 }
 
 void EnemyWeak::initConfigFile()
@@ -43,9 +45,10 @@ void EnemyWeak::initConfigFile()
 
     this->movementSpeed = config["Enemy"]["Weak"]["speed"];
     this->life_points = config["Enemy"]["Weak"]["lifePoints"];
+    this->max_life = life_points;
     int cooldown = config["Enemy"]["Weak"]["directionResetCooldown"];
     this->directionResetCooldown = std::chrono::milliseconds(cooldown);
-
+    this->xp_points = config["Enemy"]["Weak"]["xp_points"];
 
 
     cooldown = config["Enemy"]["Weak"]["ligthAttackCooldown"];
@@ -174,6 +177,8 @@ EnemyMedium::EnemyMedium(float start_x, float start_y, std::weak_ptr<SoundManage
     this->initConfigFile();
     this->initShape();
     this->initAttackTexture();
+
+    this->healthBar = std::make_unique<HealthBar>(30.f, 6.f, this->max_life);
 }
 
 
@@ -197,8 +202,10 @@ void EnemyMedium::initConfigFile()
 
     this->movementSpeed = config["Enemy"]["Medium"]["speed"];
     this->life_points = config["Enemy"]["Medium"]["lifePoints"];
+    this->max_life = life_points;
     int cooldown = config["Enemy"]["Medium"]["directionResetCooldown"];
     this->directionResetCooldown = std::chrono::milliseconds(cooldown);
+    this->xp_points = config["Enemy"]["Medium"]["xp_points"];
 
     cooldown = config["Enemy"]["Medium"]["ligthAttackCooldown"];
     this->light_attack_cooldown = std::chrono::milliseconds(cooldown);
@@ -351,6 +358,8 @@ EnemyStrong::EnemyStrong(float start_x, float start_y, std::weak_ptr<SoundManage
     this->initConfigFile();
     this->initShape();
     this->initAttackTexture();
+
+    this->healthBar = std::make_unique<HealthBar>(30.f, 6.f, this->max_life);
 }
 
 void EnemyStrong::initConfigFile()
@@ -373,8 +382,10 @@ void EnemyStrong::initConfigFile()
 
     this->movementSpeed = config["Enemy"]["Strong"]["speed"];
     this->life_points = config["Enemy"]["Strong"]["lifePoints"];
+    this->max_life = life_points;
     int cooldown = config["Enemy"]["Strong"]["directionResetCooldown"];
     this->directionResetCooldown = std::chrono::milliseconds(cooldown);
+    this->xp_points = config["Enemy"]["Medium"]["xp_points"];
 
     cooldown = config["Enemy"]["Strong"]["ligthAttackCooldown"];
     this->light_attack_cooldown = std::chrono::milliseconds(cooldown);

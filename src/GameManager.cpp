@@ -9,7 +9,7 @@ GameManager::GameManager()
 
     this->game = std::make_unique<Game>(this->gamePanelInfo, this->soundManager);
 
-    this->menu = std::make_unique<Menu>(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight);
+    this->menu = std::make_unique<Menu>(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight, this->soundManager);
 
     this->state = MENU;
 
@@ -32,62 +32,76 @@ const bool GameManager::running() const
     return this->window->isOpen();
 }
 
+void GameManager::handleKeyPressedEvent(sf::Event &event)
+{
+    if(this->event.type == sf::Event::KeyPressed)
+    {
+        if(this->event.key.code == sf::Keyboard::Escape)
+        {
+            if(this->state == GAME)
+            {
+                this->state = MENU;
+                this->menu = std::make_unique<Menu>(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight, this->soundManager);
+                this->soundManager->stopMusic();
+            }
+        }
+        else if(this->state == MENU)
+        {
+            if(this->menu->isEnterPressed())
+            {
+                this->soundManager->playSound("menu_click");
+                if(this->menu->menuOption == START_GAME)
+                {
+                    this->state = GAME;
+                    this->game = std::make_unique<Game>(this->gamePanelInfo, this->soundManager);
+                    this->window->setSize(sf::Vector2u(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight));
+                    this->soundManager->playMusic();
+                }
+                else if(this->menu->menuOption == EXIT)
+                    this->window->close();
+                else if(this->menu->menuOption == SCOREBOARD)
+                {
+                    this->menu->currentMenuState = SCOREBOARD_MENU;
+                }
+            }
+        }
+        else if(this->event.key.code == sf::Keyboard::Enter)
+        {
+            if(this->state == GAME)
+            {
+                this->game->handleEnterPressed();   
+            }
+            if(this->game->getGameMode() == GAME_OVER)
+            {
+                this->state = MENU;
+                this->menu->scoreboard->saveScore((this->game->getScore()));
+                this->soundManager->stopMusic();
+            }
+        }    
+    }
+}
+
 //Functions
 void GameManager::pollEvents()
 {
     while(this->window->pollEvent(this->event))
     {
-        switch (this->event.type)
+        if(this->event.type == sf::Event::Closed)
         {
-            case sf::Event::Closed:
-                this->window->close();
-                break;
-            case sf::Event::KeyPressed:
-                if(this->event.key.code == sf::Keyboard::Escape)
-                {
-                    if(this->state == GAME)
-                    {
-                        this->state = MENU;
-                        this->menu = std::make_unique<Menu>(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight);
-                        this->soundManager->stopMusic();
-                    }
-                }
-                
-                else if(this->state == MENU)
-                {
-                    if(this->menu->isEnterPressed())
-                    {
-                        if(this->menu->menuOption == START_GAME)
-                        {
-                            this->state = GAME;
-                            this->game = std::make_unique<Game>(this->gamePanelInfo, this->soundManager);
-                            this->window->setSize(sf::Vector2u(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight));
-                            this->soundManager->playMusic();
-                        }
-                        else if(this->menu->menuOption == EXIT)
-                            this->window->close();
-                        else if(this->menu->menuOption == SCOREBOARD)
-                        {
-                            this->menu->currentMenuState = SCOREBOARD_MENU;
-                        }
-                    }
-                }
-
-                else if(this->event.key.code == sf::Keyboard::Enter)
-                {
-                    if(this->state == GAME)
-                    {
-                        this->game->handleEnterPressed();   
-                    }
-                    if(this->game->getGameMode() == GAME_OVER)
-                    {
-                        this->state = MENU;
-                        this->menu->scoreboard->saveScore((this->game->getScore()));
-                        this->soundManager->stopMusic();
-                    }
-                }
-                break;
+            this->window->close();
         }
+        
+        this->handleKeyPressedEvent(event);
+
+        if(this->state == GAME)
+        {
+            this->game->handleKeyPressedEvent(event);
+        }
+        else if(this->state == MENU)
+        {
+            this->menu->handleKeyPressedEvents(event);
+        }
+        
     }
 }
 
@@ -95,13 +109,9 @@ void GameManager::update()
 {
     this->pollEvents();
     
-    if(this->state == MENU)
+    if(this->state == GAME)
     {
-        this->menu->update();
-    }
-    else if(this->state == GAME)
-    {
-        this->game->update();
+        this->game->update(this->event);
     }
 }
 

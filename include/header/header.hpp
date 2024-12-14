@@ -8,25 +8,31 @@
 
 class PointsHeader
 {   
-
+    private:
+        void initConfig();
     public:
         sf::Texture point_symbol_texture;
         sf::Sprite point_symbol_sprite;
 
+        std::string fontPath;
         sf::Font font;
         sf::Text pointsText;
+        sf::Text nextLevelText;
         unsigned int points;
+        unsigned int nextLevelPoints;
 
         PointsHeader();
 
-        void update(unsigned int points);
+        void update(unsigned int points, unsigned int nextLevelPoints);
         void render(sf::RenderTarget* target);
 };
 
 class LevelHeader
 {   
-
+    private:
+        void initConfig();
     public:
+        std::string fontPath;
         sf::Font font;
         sf::Text pointsText;
         unsigned int level;
@@ -51,7 +57,7 @@ class Header
         Header(int maxLifePoints, int tileSize);
         virtual ~Header() = default;
 
-        void update(unsigned int points, unsigned int level, int life_points);
+        void update(unsigned int points, unsigned int nextLevelPoints, unsigned int level, int life_points);
         void render(sf::RenderTarget* target);
 };
 

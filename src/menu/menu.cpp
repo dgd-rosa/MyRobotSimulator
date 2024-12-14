@@ -1,13 +1,16 @@
 #include "menu/menu.hpp"
 
-Menu::Menu(int screenWidth, int screenHeight)
+Menu::Menu(int screenWidth, int screenHeight, std::shared_ptr<SoundManager> soundManager)
 {
+    this->soundManager = soundManager;
+
     if(screenWidth <= 0 || screenHeight <= 0)
     {
         throw GameException("Menu: Screen dimensions not valid!");
     }
     
-    if (!this->font.loadFromFile("fonts/yoster.ttf")) {
+    this->initConfig();
+    if (!this->font.loadFromFile(this->fontPath)) {
         throw GameException("Scoreboard: Error loading font!");
     }
 
@@ -46,16 +49,53 @@ Menu::Menu(int screenWidth, int screenHeight)
     this->scoreboard = std::make_unique<Scoreboard>(screenWidth, screenHeight);
 }
 
-void Menu::navigate()
+void Menu::initConfig()
+{
+    std::ifstream file("config.json");
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config.json" << std::endl;
+        return;
+    }
+
+    // Parse the JSON file
+    json config;
+    try {
+        file >> config;
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+        return;
+    }
+
+    this->fontPath = config["UI"]["Font"];
+}
+
+void Menu::handleKeyPressedEvents(sf::Event &event)
+{
+    if(event.type == sf::Event::KeyPressed)
+    {
+        if(this->currentMenuState == MAIN_MENU)
+        {
+            this->navigate(event);
+        }
+        else if(this->currentMenuState == SCOREBOARD_MENU)
+        {
+            if(event.key.code == sf::Keyboard::Escape)
+            {
+                this->currentMenuState = MAIN_MENU;
+            }
+        }
+    }
+}
+void Menu::navigate(sf::Event &event)
 {
     if(this->clock.getElapsedTime() > this->cooldown)
     {
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && menuOption > START_GAME)
+        if(event.key.code == sf::Keyboard::Up && menuOption > START_GAME)
         {
             currentOption--;
             this->clock.restart();
         }
-        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && currentOption < EXIT)
+        else if(event.key.code == sf::Keyboard::Down && currentOption < EXIT)
         {
             currentOption++;
             this->clock.restart();
@@ -68,21 +108,6 @@ void Menu::navigate()
 bool Menu::isEnterPressed()
 {
     return sf::Keyboard::isKeyPressed(sf::Keyboard::Enter);
-}
-
-void Menu::update()
-{
-    if(this->currentMenuState == MAIN_MENU)
-    {
-        this->navigate();    
-    }
-    else if(this->currentMenuState == SCOREBOARD_MENU)
-    {
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-        {
-            this->currentMenuState = MAIN_MENU;
-        }
-    }
 }
 
 void Menu::render(sf::RenderTarget* target)

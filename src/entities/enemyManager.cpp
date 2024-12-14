@@ -33,73 +33,14 @@ void EnemyManager::initConfigFile()
     cooldown = config["EnemyManager"]["difficultIncreaseTime"];
     this->difficultIncreaseTime = std::chrono::milliseconds(cooldown);
 
-    //Enemy Probability Spawn
-    this->enemyProbabilities.push_back(std::make_pair(WEAK, config["EnemyManager"]["weak_probability"]));
-    this->enemyProbabilities.push_back(std::make_pair(MEDIUM, config["EnemyManager"]["medium_probability"]));
-    this->enemyProbabilities.push_back(std::make_pair(STRONG, config["EnemyManager"]["strong_probability"]));
 
-    this->initDifficulties(config);
-}
+    this->enemyProbabilitiesMap.insert({WEAK, config["EnemyManager"]["weak_probability"]});
+    this->enemyProbabilitiesMap.insert({MEDIUM, config["EnemyManager"]["medium_probability"]});
+    this->enemyProbabilitiesMap.insert({STRONG, config["EnemyManager"]["strong_probability"]});
 
-void EnemyManager::initDifficulties(json config)
-{
-    Difficulty difficulty1;
-    difficulty1.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["1"]["enemySpawnCooldown"];
-    difficulty1.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["1"]["weak_probability"];
-    difficulty1.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["1"]["medium_probability"];
-    difficulty1.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["1"]["strong_probability"];
-
-
-    Difficulty difficulty2;
-    difficulty2.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["2"]["enemySpawnCooldown"];
-    difficulty2.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["2"]["weak_probability"];
-    difficulty2.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["2"]["medium_probability"];
-    difficulty2.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["2"]["strong_probability"];
-
-
-
-    Difficulty difficulty3;
-    difficulty3.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["3"]["enemySpawnCooldown"];
-    difficulty3.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["3"]["weak_probability"];
-    difficulty3.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["3"]["medium_probability"];
-    difficulty3.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["3"]["strong_probability"];
-
-
-    Difficulty difficulty4;
-    difficulty4.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["4"]["enemySpawnCooldown"];
-    difficulty4.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["4"]["weak_probability"];
-    difficulty4.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["4"]["medium_probability"];
-    difficulty4.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["4"]["strong_probability"];
-
-
-    Difficulty difficulty5;
-    difficulty5.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["5"]["enemySpawnCooldown"];
-    difficulty5.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["5"]["weak_probability"];
-    difficulty5.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["5"]["medium_probability"];
-    difficulty5.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["5"]["strong_probability"];
-
-
-
-    Difficulty difficulty6;
-    difficulty6.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["6"]["enemySpawnCooldown"];
-    difficulty6.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["6"]["weak_probability"];
-    difficulty6.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["6"]["medium_probability"];
-    difficulty6.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["6"]["strong_probability"];
-
-
-    Difficulty difficulty7;
-    difficulty7.spawnEnemyCooldown = config["EnemyManager"]["Difficulty"]["7"]["enemySpawnCooldown"];
-    difficulty7.weakEnemyProbability = config["EnemyManager"]["Difficulty"]["7"]["weak_probability"];
-    difficulty7.mediumEnemyProbability = config["EnemyManager"]["Difficulty"]["7"]["medium_probability"];
-    difficulty7.strongEnemyProbability = config["EnemyManager"]["Difficulty"]["7"]["strong_probability"];
-
-    this->difficultiesList.push_back(std::make_pair(1, difficulty1));
-    this->difficultiesList.push_back(std::make_pair(2, difficulty2));
-    this->difficultiesList.push_back(std::make_pair(3, difficulty3));
-    this->difficultiesList.push_back(std::make_pair(4, difficulty4));
-    this->difficultiesList.push_back(std::make_pair(5, difficulty5));
-    this->difficultiesList.push_back(std::make_pair(6, difficulty6));
-    this->difficultiesList.push_back(std::make_pair(7, difficulty7));
+    this->enemyMaxProbabilitiesMap.insert({WEAK, config["EnemyManager"]["max_weak_probability"]});
+    this->enemyMaxProbabilitiesMap.insert({MEDIUM, config["EnemyManager"]["max_medium_probability"]});
+    this->enemyMaxProbabilitiesMap.insert({STRONG, config["EnemyManager"]["max_strong_probability"]});
 }
 
 /**
@@ -180,10 +121,10 @@ EnemyType EnemyManager::chooseRandomEnemyType()
 
     int cumulativeProbability = 0;
 
-    for(auto pair : this->enemyProbabilities)
+    for(auto& [key, value] : this->enemyProbabilitiesMap)
     {
-        int probability = pair.second;
-        EnemyType type = pair.first;
+        int probability = value;
+        EnemyType type = key;
 
         cumulativeProbability += probability;
         if(random_number < cumulativeProbability)
@@ -207,19 +148,15 @@ Enemy* EnemyManager::generateRandomEnemy()
     switch (type)
     {
     case WEAK:
-        cout << "Generated WEAK" << endl;
         return new EnemyWeak(0.f, 0.f, this->soundManager);
         break;
     case MEDIUM:
-        cout << "Generated MEDIUM" << endl;
         return new EnemyMedium(0.f, 0.f, this->soundManager);
         break;
     case STRONG:
-        cout << "Generated STRONG" << endl;
         return new EnemyStrong(0.f, 0.f, this->soundManager);
         break;
     default:
-        cout << "Generated WEAK (DEFAULT)" << endl;
         return new EnemyWeak(0.f, 0.f, this->soundManager);
         break;
     }
@@ -348,24 +285,91 @@ bool EnemyManager::checkEnemyNumber()
     return enemyDead;
 }
 
-void EnemyManager::increaseDifficulty()
+void EnemyManager::adjustDifficulty(float difficultyFactor)
 {
-    if(current_difficulty < 8)
+    cout << "OLD Probabilities (WEAK, MEDIUM, STRONG): ";
+    cout << this->enemyProbabilitiesMap[WEAK] << "|";
+    cout << this->enemyProbabilitiesMap[MEDIUM] << "|";
+    cout << this->enemyProbabilitiesMap[STRONG] << endl;
+    
+    this->enemyProbabilitiesMap[WEAK] = std::max(10.f, enemyProbabilitiesMap[WEAK] - difficultyFactor * 0.3f);
+    this->enemyProbabilitiesMap[MEDIUM] = std::min(enemyMaxProbabilitiesMap[MEDIUM], enemyProbabilitiesMap[MEDIUM] + difficultyFactor * 0.25f);
+    //this->enemyProbabilitiesMap[STRONG] = std::min(enemyMaxProbabilitiesMap[STRONG], enemyProbabilitiesMap[STRONG] + difficultyFactor * 0.15f);
+    this->enemyProbabilitiesMap[STRONG] = 100 - enemyProbabilitiesMap[WEAK] - enemyProbabilitiesMap[MEDIUM];
+
+    cout << "NEW Probabilities (WEAK, MEDIUM, STRONG): ";
+    cout << this->enemyProbabilitiesMap[WEAK] << "|";
+    cout << this->enemyProbabilitiesMap[MEDIUM] << "|";
+    cout << this->enemyProbabilitiesMap[STRONG] << endl;
+
+    cout << "OLD spawn time";
+    cout << this->enemy_spawn_cooldown.count();
+    int cooldown = std::max(2000.f, this->enemy_spawn_cooldown.count() - difficultyFactor * 500);
+    this->enemy_spawn_cooldown = chrono::milliseconds(cooldown);
+
+
+    cout << "NEW spawn time";
+    cout << this->enemy_spawn_cooldown.count();
+}
+
+void EnemyManager::increaseDifficultyFactor(int playerScore)
+{
+    int newDifficulty = playerScore / 100;
+    if(newDifficulty > difficultyFactor)
     {
-        current_difficulty += 1;
+        this->difficultyFactor = newDifficulty;
+    }
+}
+
+void EnemyManager::addTextDisappearing(Enemy* enemy)
+{
+    auto enemyBounds = enemy->getBounds();
+
+    sf::Vector2f enemyCenter;
+    enemyCenter.x = enemyBounds.left + enemyBounds.width/2;
+    enemyCenter.y = enemyBounds.top;
+
+    this->text_disappearing_list.push_back(
+        std::make_unique<TextDisappear>(enemyCenter, enemy->getXPPoints())
+    );
+
+}
+
+void EnemyManager::removeTextDisappearing(int idx)
+{
+    if(idx >= this->text_disappearing_list.size())
+    {
+        return;
     }
 
-    cout << "Increasing Difficulty to.... " << this->current_difficulty << endl;
+    this->text_disappearing_list.erase(this->text_disappearing_list.begin() + idx);
+}
 
-    for(auto diff: this->difficultiesList)
+void EnemyManager::updateTextDisappearing()
+{
+    for (size_t idx = 0; idx < this->text_disappearing_list.size();)
     {
-        if(diff.first == current_difficulty)
+        auto &text = this->text_disappearing_list[idx];
+
+        // Skip if text is nullptr (defensive programming)
+        if (!text)
         {
-            this->weak_enemy_spawn_probability = diff.second.weakEnemyProbability;
-            this->medium_enemy_spawn_probability = diff.second.mediumEnemyProbability;
-            this->strong_enemy_spawn_probability = diff.second.strongEnemyProbability;
-            this->enemy_spawn_cooldown = chrono::milliseconds(diff.second.spawnEnemyCooldown);
+            std::cerr << "Warning: nullptr detected in text_disappearing_list." << std::endl;
+            this->text_disappearing_list.erase(this->text_disappearing_list.begin() + idx);
+            continue; // Don't increment idx; the next item has shifted to current idx
         }
+
+        // Check transparency
+        if (text->getTransparency() <= 0)
+        {
+            // Remove text
+            this->text_disappearing_list.erase(this->text_disappearing_list.begin() + idx);
+            continue; // Don't increment idx
+        }
+
+        // Update text
+        text->update();
+        ++idx; // Increment only if no removal
     }
 }
 
@@ -385,6 +389,13 @@ void EnemyManager::updateEnemies(Robot* robot, ObjectSpawner* objectSpawner, Til
                     objectSpawner->spawnRandomPowerUp(enemy->getCollisionBounds().left, enemy->getCollisionBounds().top);
                 }
 
+                //Create TextDisappearing
+                this->addTextDisappearing(enemy);
+
+                //Update robot XP
+                robot->increasePoints(enemy->getXPPoints());
+
+                //Remove Enemy
                 this->removeEnemy(counter);
                 --counter;
                 continue;
@@ -404,8 +415,11 @@ void EnemyManager::updateEnemies(Robot* robot, ObjectSpawner* objectSpawner, Til
 
     if(now - this->lastSpawn > this->enemy_spawn_cooldown)
     {
-        //Make a new enemy
-        this->spawnNewEnemy(robot, tilesManager);
+        if(this->enemyList.size() < this->maxNumberEnemy)
+        {
+            //Make a new enemy
+            this->spawnNewEnemy(robot, tilesManager);
+        }
         this->lastSpawn = now;
     }
     
@@ -414,12 +428,17 @@ void EnemyManager::updateEnemies(Robot* robot, ObjectSpawner* objectSpawner, Til
         enemy->update(robot);
     }
 
-   
-    if(now - lastDifficultIncreaseTime > this->difficultIncreaseTime)
+    float currentFactor = this->difficultyFactor;
+    this->increaseDifficultyFactor(robot->getPoints());
+
+    if(currentFactor != this->difficultyFactor)
     {
-        this->increaseDifficulty();
-        this->lastDifficultIncreaseTime = now;
+        this->adjustDifficulty(this->difficultyFactor);
     }
+
+
+    //Text Disappearing
+    this->updateTextDisappearing();
 }
 
 void EnemyManager::moveEnemies()
@@ -435,5 +454,10 @@ void EnemyManager::renderEnemies(sf::RenderTarget* target)
     for(auto enemy : this->enemyList)
     {
         enemy->render(target);
+    }
+
+    for(auto &text : this->text_disappearing_list)
+    {
+        text->render(target);
     }
 }

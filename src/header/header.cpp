@@ -12,7 +12,8 @@ PointsHeader::PointsHeader()
     this->point_symbol_sprite.setTexture(this->point_symbol_texture);
     this->point_symbol_sprite.setScale(1.75, 1.75);
 
-    if(!this->font.loadFromFile("fonts/yoster.ttf"))
+    this->initConfig();
+    if(!this->font.loadFromFile(this->fontPath))
     {
         throw GameException("error loading font file");
     }
@@ -28,23 +29,53 @@ PointsHeader::PointsHeader()
     auto text_bounds = this->pointsText.getGlobalBounds();
     this->point_symbol_sprite.setPosition(text_bounds.left + text_bounds.width, text_bounds.top - text_bounds.height/2);
 
+    this->nextLevelText.setFont(font);
+    this->nextLevelText.setCharacterSize(20);
+    this->nextLevelText.setFillColor(sf::Color::White);
+    this->nextLevelText.setPosition(400 , 60);
+    this->nextLevelText.setOutlineColor(sf::Color::Black);
+    this->nextLevelText.setString("To Next Lvl: " + std::to_string(nextLevelPoints));
+}
+
+void PointsHeader::initConfig()
+{
+    std::ifstream file("config.json");
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config.json" << std::endl;
+        return;
+    }
+
+    // Parse the JSON file
+    json config;
+    try {
+        file >> config;
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+        return;
+    }
+
+    this->fontPath = config["UI"]["Font"];
 }
 
 
-
-void PointsHeader::update(unsigned int points)
+void PointsHeader::update(unsigned int points, unsigned int nextLevelPoints)
 {
     this->points = points;
     this->pointsText.setString(std::to_string(points) + " X");
 
     auto text_bounds = this->pointsText.getGlobalBounds();
     this->point_symbol_sprite.setPosition(text_bounds.left + text_bounds.width + 5, text_bounds.top - text_bounds.height/2);
+
+
+    this->nextLevelPoints = nextLevelPoints;
+    this->nextLevelText.setString("To Next Lvl: " + std::to_string(nextLevelPoints));
 }
 
 void PointsHeader::render(sf::RenderTarget* target)
 {
     target->draw(this->pointsText);
     target->draw(this->point_symbol_sprite);
+    target->draw(this->nextLevelText);
 }
 
 
@@ -52,7 +83,8 @@ void PointsHeader::render(sf::RenderTarget* target)
 
 LevelHeader::LevelHeader()
 {
-    if(!this->font.loadFromFile("fonts/yoster.ttf"))
+    this->initConfig();
+    if(!this->font.loadFromFile(this->fontPath))
     {
         throw GameException("error loading font file");
     }
@@ -64,6 +96,26 @@ LevelHeader::LevelHeader()
     this->pointsText.setOutlineColor(sf::Color::Black);
     this->pointsText.setString("Level: " + std::to_string(level));
 
+}
+
+void LevelHeader::initConfig()
+{
+    std::ifstream file("config.json");
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config.json" << std::endl;
+        return;
+    }
+
+    // Parse the JSON file
+    json config;
+    try {
+        file >> config;
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+        return;
+    }
+
+    this->fontPath = config["UI"]["Font"];
 }
 
 void LevelHeader::update(unsigned int level)
@@ -94,9 +146,9 @@ Header::Header(int maxLifePoints, int tileSize)
     }
 }
 
-void Header::update(unsigned int points, unsigned int level, int life_points)
+void Header::update(unsigned int points, unsigned int nextLevelPoints, unsigned int level, int life_points)
 {
-    this->points_header->update(points);
+    this->points_header->update(points, nextLevelPoints);
     this->level_header->update(level);
 
     int x = tileSize/2;

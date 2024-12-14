@@ -76,18 +76,26 @@ class Robot : public Entity{
         unsigned int getBatteryValue();
         unsigned int getLifePoints();
         unsigned int getLevel();
+        unsigned int getPointsToNextLvl();
+        int getLightAttackDamage();
+        float getLightAttackCooldown();
+        float getLightAttackSpeed();
+        float getMovementSpeed();
+        bool getIsLevelingUp();
+        void setIsLevelingUp(bool);
 
-        //Modifiers
-        
+        //handlers
+        void handlingKeyPressedEvent(sf::Event &event);
+
 
         // Functions
         void updateInput();
         void updateMovement();
         Projectile* shoot();
+        void increasePoints(int val);
         
-        //bool obstacleCollision(sf::Sprite obstacle);
+        
         void obstacleCollision() override;
-        
         void moveAfterCollision(Entity* entity);
         
         void pickUpObject(SuperObject* obj) override;

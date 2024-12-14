@@ -59,7 +59,8 @@
         "list": "cpp",
         "unordered_set": "cpp",
         "bitset": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "condition_variable": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -40,6 +40,7 @@ void SoundManager::initConfig()
     this->musicVolume = config["SoundManager"]["MusicVolume"];
     loadMusic(musicPath);
 
+    this->soundVolume = config["SoundManager"]["SoundVolume"];
     std::string hitSoundPath = config["SoundManager"]["HitSoundPath"];
     loadSound("hit", hitSoundPath);
 
@@ -51,6 +52,9 @@ void SoundManager::initConfig()
 
     std::string pickScrewSoundPath = config["SoundManager"]["PickScrewSoundPath"];
     loadSound("pick_screw", pickScrewSoundPath);
+
+    std::string menuClickSoundPath = config["SoundManager"]["MenuClickSoundPath"];
+    loadSound("menu_click", menuClickSoundPath);
 }
 
 void SoundManager::loadSound(const std::string& name, const std::string& filePath) {
@@ -64,6 +68,7 @@ void SoundManager::loadSound(const std::string& name, const std::string& filePat
 void SoundManager::playSound(const std::string& name) {
     if (sounds.count(name) > 0) {
         sounds[name].play();
+        sounds[name].setVolume(this->soundVolume);
     }
 }
 

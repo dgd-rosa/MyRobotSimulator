@@ -10,12 +10,13 @@ void Game::initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> so
 
     this->tileManager = new TileManager(gamePanelInfo);
 
-
     this->projectileManager = std::make_unique<ProjectileManager>();
 
     this->soundManager = soundManager;
     this->enemyManager = std::make_unique<EnemyManager>(soundManager);
-    this->enemyManager->addEnemy(new EnemyMedium(120.f, 460.f, this->soundManager));
+    this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
+    // this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
+    // this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
     
     this->objectSpawner = new ObjectSpawner(this->tileManager);
     
@@ -23,16 +24,37 @@ void Game::initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> so
     
     //TODO: change this hard coded value
     this->header = std::make_unique<Header>(6, this->gamePanelInfo->tileSize);
+
+    this->levelUpUI = std::make_unique<LevelUpUI>(400, 400, gamePanelInfo->screenWidth, gamePanelInfo->screenHeight);
 }
 
 void Game::initRobot(){
     this->robot = Robot(200, 200, this->soundManager);
 }
 
+void Game::initConfig()
+{
+    std::ifstream file("config.json");
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config.json" << std::endl;
+        return;
+    }
+
+    // Parse the JSON file
+    json config;
+    try {
+        file >> config;
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON Parse Error: " << e.what() << std::endl;
+        return;
+    }
+    this->fontPath = config["UI"]["Font"];
+}
+
 void Game::initText()
 {
 
-    if(!this->font.loadFromFile("fonts/yoster.ttf"))
+    if(!this->font.loadFromFile(this->fontPath))
     {
         throw GameException("error loading font file");
     }
@@ -75,6 +97,7 @@ void Game::initText()
 Game::Game(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> soundManager)
     : robot(100.0f, 200.0f, soundManager)
 {
+    this->initConfig();
     this->initVariables(gpInfo, soundManager);
     this->initRobot();
     this->initText();
@@ -209,11 +232,36 @@ void Game::shootProjectiles()
     this->projectileManager->addEnemyListProjectile(this->enemyManager->shootEnemyListToRobot(&this->robot));
 }
 
-void Game::update(){
+void Game::handleKeyPressedEvent(sf::Event& event)
+{
+    if(event.type == sf::Event::KeyPressed)
+    {
+        if(event.key.code == sf::Keyboard::Space)
+        {
+            if(this->mode == LEVEL_UP)
+            {
+                this->mode = INGAME;
+                this->robot.setIsLevelingUp(false);
+            }
+            if(this->mode == INGAME)
+            {
+                this->robot.handlingKeyPressedEvent(event);
+            }
+        }
+        
+
+        if(this->mode == PAUSE)
+        {
+
+        }
+
+    }
+}
+
+void Game::update(sf::Event &event){
 
     if(this->mode == INGAME)
     {   
-
         this->robot.updateInput();
         this->enemyManager->updateEnemies(&this->robot, this->objectSpawner, this->tileManager);
 
@@ -222,29 +270,28 @@ void Game::update(){
         this->projectileManager->updateProjectiles(this->gamePanelInfo->screenWidth, this->gamePanelInfo->screenHeight);
         this->updateCollisions();
 
-        if(enemyManager->checkEnemyNumber())
-        {
-            std::cout << "Robot Killed an enemy!!!" << std::endl; 
-        }
 
         // Updates
         this->robot.update();
         this->enemyManager->moveEnemies();
         this->objectSpawner->update(this->tileManager, &this->robot);
-        this->header->update(this->robot.getPoints(), this->robot.getLevel(), this->robot.getLifePoints());
+        this->header->update(this->robot.getPoints(), this->robot.getPointsToNextLvl(), this->robot.getLevel(), this->robot.getLifePoints());
 
 
         this->updateWindowCollision();
 
         this->checkGameOver();
+
+        if(this->robot.getIsLevelingUp())
+        {
+            this->levelUpUI->update(&this->robot);
+            this->mode = LEVEL_UP;
+        }
     }
 
     if(this->mode == GAME_OVER)
     {
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-        {
-
-        }
+        
     }
 }
 
@@ -255,13 +302,18 @@ void Game::render(sf::RenderTarget* target){
     //Draw Game
     this->objectSpawner->render(target);
 
-    this->projectileManager->renderProjectiles(target);
-
     this->robot.render(target);
 
     this->enemyManager->renderEnemies(target);
 
     this->header->render(target);
+
+    this->projectileManager->renderProjectiles(target);
+
+    if(this->mode == LEVEL_UP)
+    {
+        this->levelUpUI->render(target);
+    }
 
     if(this->mode == PAUSE)
     {
@@ -273,6 +325,8 @@ void Game::render(sf::RenderTarget* target){
         target->draw(this->pauseBackground);
         target->draw(this->gameOverText);
     }
+
+    
 }
 
 

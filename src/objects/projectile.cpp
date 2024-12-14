@@ -41,14 +41,18 @@ Projectile::Projectile(sf::Texture texture, Direction direction, float start_x, 
 
     this->texture = texture;
 
-    this->sprite.setPosition(sf::Vector2f(start_x, start_y));
     this->sprite.setTexture(this->texture);
     this->sprite.scale(1.5,1.5);
+
+    //set origin to the center
+    auto spriteBounds = sprite.getLocalBounds();
+    this->sprite.setOrigin(sf::Vector2f(spriteBounds.width/2, spriteBounds.height/2));
+    this->sprite.setPosition(sf::Vector2f(start_x, start_y));
     this->bounds = this->sprite.getGlobalBounds();
 
     
     //Setup Collision Rectangle
-    sf::FloatRect spriteBounds = this->sprite.getGlobalBounds();
+    spriteBounds = this->sprite.getGlobalBounds();
 
     
     this->collisionRect.setSize(sf::Vector2f(spriteBounds.width-25, spriteBounds.height-25));

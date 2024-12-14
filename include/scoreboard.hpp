@@ -29,6 +29,7 @@ class Scoreboard
         int maxScores = 3;
         int screenWidth, screenHeight;
 
+        std::string fontPath;
         sf::Font font;
         sf::Text score1_text;
         sf::Text score2_text;

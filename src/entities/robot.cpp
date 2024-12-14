@@ -209,6 +209,41 @@ unsigned int Robot::getLevel()
     return this->level;
 }
 
+int Robot::getLightAttackDamage()
+{
+    return this->light_attack_damage;
+}
+
+bool Robot::getIsLevelingUp()
+{
+    return this->isLevelingUp;
+}
+
+float Robot::getLightAttackCooldown()
+{
+    return this->light_attack_cooldown.count()/1000.f;
+}
+
+float Robot::getLightAttackSpeed()
+{
+    return this->light_attack_speed;
+}
+
+float Robot::getMovementSpeed()
+{
+    return this->movementSpeed;
+}
+
+unsigned int Robot::getPointsToNextLvl()
+{
+    return this->xp_for_next_level;
+}
+
+void Robot::setIsLevelingUp(bool val)
+{
+    this->isLevelingUp = val;
+}
+
 void Robot::updateInput()
 {
     //Keyboard input
@@ -385,15 +420,44 @@ void Robot::pickUpPoint(PointObject* obj)
     this->soundEffect("pick_screw");
 }
 
+void Robot::increasePoints(int val)
+{
+    this->points += val;
+    this->current_xp += val;
+}
+
 void Robot::updateXP()
 {
     if(this->current_xp >= this->xp_for_next_level)
     {
+        
         //Level UPPPP
         this->xp_for_next_level = this->xp_for_next_level * 2;
         this->level++;
-        std::cout << "Level UPPPPP!! XP for level " << this->level + 1 << std::endl;
+
+        this->levelUp();
     }
+}
+
+void Robot::levelUp()
+{
+    if(this->light_attack_cooldown.count()*0.95 > 1000)
+    {
+        int aux = this->light_attack_cooldown.count()*0.95f;
+        this->light_attack_cooldown = chrono::milliseconds(aux);
+    }
+
+    if(this->light_attack_damage + this->level * 0.5 < 5)
+    {
+        this->light_attack_damage = this->light_attack_damage + this->level * 0.5;
+    }
+    
+    if(this->movementSpeed + 0.05 * this->level < 7)
+    {
+        this->movementSpeed = this->movementSpeed + 0.05 * this->level;
+    }
+
+    this->isLevelingUp = true;
 }
 
 
@@ -401,6 +465,7 @@ void Robot::obstacleCollision()
 {
     this->setVelocity(0.f, 0.f);
 }
+
 
 void Robot::hitByProjectile(Projectile* projectile)
 {
@@ -455,24 +520,39 @@ Projectile* Robot::lightAttack()
         //Check if Sound Managers still exists (robot only has a weak ptr pointing to sound manager)
         this->soundEffect("light_attack");
         this->lastTimeShot = now;
+
+        auto robotBounds = this->getBounds();
+        sf::Vector2f robotCenter = sf::Vector2f(robotBounds.left + robotBounds.width/2, robotBounds.top + robotBounds.height/2);
+        
         switch (this->face_direction)
         {
         case UP:
-            return new Projectile(this->lightAttackTextureUp, this->face_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, this->light_attack_damage);
+            return new Projectile(this->lightAttackTextureUp, this->face_direction, robotCenter.x, robotCenter.y, this->light_attack_speed, this->light_attack_damage);
             break;
         case DOWN:
-            return new Projectile(this->lightAttackTextureDown, this->face_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, this->light_attack_damage);
+            return new Projectile(this->lightAttackTextureDown, this->face_direction, robotCenter.x, robotCenter.y, this->light_attack_speed, this->light_attack_damage);
             break;
         case LEFT:
-            return new Projectile(this->lightAttackTextureLeft, this->face_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, this->light_attack_damage);
+            return new Projectile(this->lightAttackTextureLeft, this->face_direction, robotCenter.x, robotCenter.y, this->light_attack_speed, this->light_attack_damage);
             break;
         case RIGHT:
-            return new Projectile(this->lightAttackTextureRight, this->face_direction, this->getPos().x, this->getPos().y, this->light_attack_speed, this->light_attack_damage);
+            return new Projectile(this->lightAttackTextureRight, this->face_direction, robotCenter.x, robotCenter.y, this->light_attack_speed, this->light_attack_damage);
             break;
         }
     }
     else{
         return nullptr;
+    }
+}
+
+void Robot::handlingKeyPressedEvent(sf::Event &event)
+{
+    if(event.type == sf::Event::KeyPressed)
+    {
+        if(event.key.code == sf::Keyboard::Z)
+        {
+
+        }
     }
 }
 

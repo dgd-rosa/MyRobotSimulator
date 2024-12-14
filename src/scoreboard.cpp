@@ -121,6 +121,7 @@ void Scoreboard::initConfig()
     }
 
     this->scoresPath = config["Scoreboard"]["scoresFile"];
+    this->fontPath = config["UI"]["Font"];
 }
 
 bool Scoreboard::compareScores(Score& a, Score& b) {

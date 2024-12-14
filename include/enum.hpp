@@ -13,6 +13,7 @@ enum Mode
 {
     INGAME,
     PAUSE,
+    LEVEL_UP,
     GAME_OVER
 };
 

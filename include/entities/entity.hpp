@@ -67,6 +67,7 @@ class Entity
         const sf::Vector2f& getPos() const;
         const Direction getDirection() const;
         unsigned int getLifePoints(){return this->life_points;}
+        
 
         //Sets
         void setPosition(sf::Vector2f pos);

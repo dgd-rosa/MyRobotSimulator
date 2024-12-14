@@ -5,6 +5,7 @@
 #include "objects/object_spawner.hpp"
 #include "header/header.hpp"
 #include "menu/menu.hpp"
+#include "menu/UI.hpp"
 #include <iostream>
 
 
@@ -40,9 +41,13 @@ class Game
 
         //Pause Mode
         sf::RectangleShape pauseBackground;
+        std::string fontPath;
         sf::Font font;
         sf::Text pauseText;
         sf::Text gameOverText;
+
+        //LevelUP UI
+        std::unique_ptr<LevelUpUI> levelUpUI;
 
         //score
         chrono::time_point<chrono::steady_clock> initTime;
@@ -54,6 +59,7 @@ class Game
         void initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager>);
         void initRobot();
         void initText();
+        void initConfig();
 
     public:
         GamePanelInfo* gamePanelInfo;
@@ -67,11 +73,12 @@ class Game
         void handleEnterPressed();
         Mode getGameMode() {return mode;}
         Score getScore();
-        
         void shootProjectiles();
+
+        void handleKeyPressedEvent(sf::Event& event);
         void updateCollisions();
         void updateWindowCollision();
-        void update();
+        void update(sf::Event &event);
 
 
         void render(sf::RenderTarget* target);

@@ -16,6 +16,7 @@ class SoundManager {
 private:
     sf::Music music;
     float musicVolume = 100.f;
+    float soundVolume = 100.f;
     std::map<std::string, sf::SoundBuffer> soundBuffers;
     std::map<std::string, sf::Sound> sounds;
     void initConfig();

@@ -44,6 +44,8 @@ class GameManager
 
         //Functions
         void pollEvents();
+        void handleKeyPressedEvent(sf::Event &event);
+        
 
 
         void update();
