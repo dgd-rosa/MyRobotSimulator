@@ -124,7 +124,7 @@ void LevelUpUI::initTexts()
 
 void LevelUpUI::update(Robot* robot)
 {
-    std::string str0 = "Level Up ";
+    std::string str0 = "Level Up! LvL ";
     str0 += std::to_string(robot->getLevel());
     this->title.setString(str0);
     this->setTextOriginCenteredRectangle(this->title);

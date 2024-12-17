@@ -15,8 +15,8 @@ void Game::initVariables(GamePanelInfo* gpInfo, std::shared_ptr<SoundManager> so
     this->soundManager = soundManager;
     this->enemyManager = std::make_unique<EnemyManager>(soundManager);
     this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
-    // this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
-    // this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
+    this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
+    this->enemyManager->spawnNewEnemy(&this->robot, this->tileManager);
     
     this->objectSpawner = new ObjectSpawner(this->tileManager);
     

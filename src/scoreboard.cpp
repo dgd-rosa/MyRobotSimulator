@@ -50,9 +50,6 @@ Scoreboard::Scoreboard(int screenWidth, int screenHeight)
     this->initConfig();
     this->openFile();
     this->initGraphics();
-
-    Score newScore = {1000, 10, 100000};
-    std::cout << newScore.toString() << std::endl;
 }
 
 void Scoreboard::initGraphics()

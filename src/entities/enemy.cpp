@@ -392,6 +392,7 @@ void Enemy::update(Robot* robot)
     }
     this->healthBar->update(this->life_points, this->getBounds());
     
+
 }
 
 void Enemy::render(sf::RenderTarget* target)

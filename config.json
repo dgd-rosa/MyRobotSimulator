@@ -112,7 +112,7 @@
     },
 
     "EnemyManager":{
-        "enemySpawnCooldown": 10000,
+        "enemySpawnCooldown": 4000,
         "difficultIncreaseTime": 40000,
         "maxNumberEnemy": 10,
         "probabilityLoot": 60,
